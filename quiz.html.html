@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ER Study Monitor</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0E1A24;
+    color: #E8F0F2;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px;
+  }
+  .mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  .wrap { width: 100%; max-width: 420px; }
+  .card {
+    border-radius: 16px;
+    background: #142430;
+    border: 1px solid #22384A;
+    padding: 20px;
+  }
+  .monitor {
+    margin-bottom: 20px;
+    box-shadow: 0 0 30px -15px rgba(53,208,127,0.4);
+  }
+  .row { display: flex; align-items: center; justify-content: space-between; }
+  .eyebrow {
+    display: flex; align-items: center; gap: 6px;
+    color: #8FA8B3; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #35D07F;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+  .score-big { font-size: 36px; font-weight: 700; color: #35D07F; line-height: 1; }
+  .score-sub { font-size: 16px; color: #8FA8B3; }
+  .label { font-size: 11px; color: #8FA8B3; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+  .streak-big { font-size: 24px; font-weight: 700; color: #F2A93B; line-height: 1; }
+  .bar-bg { margin-top: 12px; height: 6px; border-radius: 4px; background: #0E1A24; overflow: hidden; }
+  .bar-fg { height: 100%; background: linear-gradient(90deg, #2FB8C6, #35D07F); transition: width .4s ease; }
+  .cat-badge {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    padding: 4px 10px; border-radius: 999px; display: inline-block;
+  }
+  .qtext { font-size: 15px; line-height: 1.5; margin: 16px 0; }
+  .opt {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    text-align: left; width: 100%; padding: 12px 14px; border-radius: 12px;
+    background: #0E1A24; border: 1px solid #22384A; color: #E8F0F2;
+    font-size: 14px; margin-bottom: 10px; cursor: pointer; transition: all .15s ease;
+  }
+  .opt:disabled { cursor: default; }
+  .opt.correct { border-color: #35D07F; background: rgba(53,208,127,0.1); }
+  .opt.wrong { border-color: #E5533D; background: rgba(229,83,61,0.1); }
+  .opt.dim { opacity: 0.45; }
+  .explain {
+    margin-top: 14px; border-radius: 12px; background: #0E1A24; border: 1px solid #22384A; padding: 14px;
+  }
+  .explain-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #2FB8C6; margin-bottom: 6px; }
+  .explain-body { font-size: 13px; line-height: 1.5; color: #8FA8B3; }
+  .btn-primary {
+    margin-top: 14px; width: 100%; padding: 14px; border-radius: 12px; border: none;
+    background: #35D07F; color: #0E1A24; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .btn-secondary {
+    width: 100%; padding: 14px; border-radius: 12px; background: transparent;
+    border: 1px solid #22384A; color: #E8F0F2; font-weight: 700; font-size: 14px; cursor: pointer;
+  }
+  .result-pct { text-align: center; font-size: 44px; font-weight: 700; color: #35D07F; }
+  .result-sub { text-align: center; color: #8FA8B3; font-size: 13px; margin-top: 4px; margin-bottom: 20px; }
+  .cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cat-name { width: 96px; flex-shrink: 0; font-size: 12px; color: #8FA8B3; }
+  .cat-bar-bg { flex: 1; height: 8px; border-radius: 4px; background: #0E1A24; overflow: hidden; }
+  .cat-bar-fg { height: 100%; border-radius: 4px; }
+  .cat-frac { width: 36px; text-align: right; font-size: 12px; color: #8FA8B3; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card monitor">
+    <div class="row" style="margin-bottom:12px;">
+      <div class="eyebrow"><span class="dot"></span> ER Study Monitor</div>
+      <div class="eyebrow"><span class="dot"></span> Live</div>
+    </div>
+    <div class="row" style="align-items:flex-end;">
+      <div>
+        <div class="score-big mono"><span id="scoreVal">0</span><span class="score-sub">/8</span></div>
+        <div class="label">Score</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="streak-big mono" id="streakVal">0</div>
+        <div class="label">Streak</div>
+      </div>
+    </div>
+    <div class="bar-bg"><div class="bar-fg" id="progressBar" style="width:0%;"></div></div>
+  </div>
+
+  <div id="quizArea" class="card"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { category: "Triage", color: "#2FB8C6",
+    q: "A 34-year-old walks in with a fever of 101.2°F, sore throat, and mild dehydration. No airway compromise, stable vitals. What ESI level?",
+    options: ["ESI 1", "ESI 2", "ESI 3", "ESI 5"], correct: 2,
+    explain: "ESI 3 — stable vitals, no immediate threat, but will likely need multiple resources (labs, IV fluids). Not high-risk enough for ESI 2, but too resource-intensive for ESI 4/5." },
+  { category: "Cardiac", color: "#E5533D",
+    q: "12-lead shows ST elevation in II, III, and aVF. Which artery is most likely occluded, and what's your next priority?",
+    options: ["LAD — prep for anterior wall complications", "RCA — inferior MI, get a right-sided ECG for RV involvement", "Circumflex — lateral MI, monitor for AV block only", "LAD diagonal — no special precautions needed"], correct: 1,
+    explain: "II, III, aVF = inferior leads = RCA territory in ~80-90% of cases. Right-sided ECG (V4R) checks for RV infarct — critical because nitrates can tank preload-dependent RV patients." },
+  { category: "Trauma", color: "#F2A93B",
+    q: "Primary survey on a blunt trauma patient: trachea midline, breath sounds absent on the left, hyperresonant to percussion, JVD present, BP dropping. What's your move?",
+    options: ["Chest x-ray to confirm before intervening", "Needle decompression, 2nd intercostal space, midclavicular line", "Start crystalloid bolus and reassess in 10 minutes", "Apply an occlusive dressing and elevate the head of bed"], correct: 1,
+    explain: "Absent breath sounds + hyperresonance + JVD + hypotension = tension pneumothorax. This is a clinical diagnosis — don't wait on imaging. Needle decompress immediately, then chest tube." },
+  { category: "Med Calc", color: "#35D07F",
+    q: "Order: Epinephrine 0.01 mg/kg IM for anaphylaxis, patient weighs 22 kg. Using 1:1000 (1 mg/mL) concentration, how many mL do you draw up?",
+    options: ["0.11 mL", "0.22 mL", "0.44 mL", "1.1 mL"], correct: 1,
+    explain: "0.01 mg/kg × 22 kg = 0.22 mg. At 1 mg/mL, that's 0.22 mL. Always double-check concentration (1:1000 vs 1:10,000) before drawing up epi — this is a classic high-alert med error point." },
+  { category: "Electrolytes", color: "#B98CE0",
+    q: "Potassium comes back at 7.2. Which EKG change would you expect to see first, before it progresses further?",
+    options: ["Peaked T waves", "Delta wave", "Prolonged QT with U waves", "Osborn (J) waves"], correct: 0,
+    explain: "Peaked, narrow T waves are the earliest sign of hyperkalemia. As K+ rises further you'll see P wave flattening, widened QRS, and eventually a sine wave pattern — a true crash-cart situation." },
+  { category: "Stroke", color: "#E5533D",
+    q: "Patient's last-known-well was 2 hours ago. NIHSS 14, no contraindications on the checklist. What's the priority sequence?",
+    options: ["MRI first to confirm ischemic vs hemorrhagic, then decide", "Non-contrast CT stat, labs, and move toward tPA eligibility screening within the window", "Start on aspirin and admit for observation", "Wait for neurology to see the patient before any imaging"], correct: 1,
+    explain: "Non-contrast CT is the fast, essential first step to rule out hemorrhage. With a witnessed onset well inside the 3-4.5 hour window and no red flags, the clock is the enemy — imaging and screening happen in parallel, not sequentially." },
+  { category: "Sepsis", color: "#F2A93B",
+    q: "Suspected septic shock: lactate 4.2, BP 82/50 after 30mL/kg crystalloid. What's next per the sepsis bundle?",
+    options: ["Give another 30 mL/kg bolus and recheck lactate", "Start norepinephrine to maintain MAP ≥ 65", "Hold fluids and start broad-spectrum antibiotics only", "Transfuse PRBCs regardless of hemoglobin"], correct: 1,
+    explain: "Fluid-refractory hypotension after adequate resuscitation (30 mL/kg) means it's time for vasopressors — norepinephrine first-line — to hit a MAP ≥ 65 while continuing to reassess volume status." },
+  { category: "Airway", color: "#2FB8C6",
+    q: "You're pushing meds for RSI. Which combination best minimizes hemodynamic instability in a hypotensive trauma patient?",
+    options: ["Propofol + succinylcholine", "Etomidate or ketamine + rocuronium", "Midazolam + vecuronium", "Fentanyl alone, no paralytic"], correct: 1,
+    explain: "Etomidate and ketamine are the go-to induction agents for hemodynamically unstable patients since they preserve blood pressure better than propofol. Rocuronium is preferred over succinylcholine when there's a hyperkalemia risk or prolonged paralysis is anticipated." }
+];
+
+let idx = 0, selected = null, score = 0, streak = 0, bestStreak = 0, answered = [], done = false;
+
+function render() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('progressBar').style.width = (done ? 100 : (idx / QUESTIONS.length) * 100) + '%';
+  const area = document.getElementById('quizArea');
+
+  if (done) {
+    const catMap = {};
+    answered.forEach(a => {
+      if (!catMap[a.category]) catMap[a.category] = { total: 0, correct: 0, color: a.color };
+      catMap[a.category].total++;
+      if (a.correct) catMap[a.category].correct++;
+    });
+    let catHtml = '';
+    Object.entries(catMap).forEach(([cat, d]) => {
+      catHtml += `<div class="cat-row">
+        <div class="cat-name">${cat}</div>
+        <div class="cat-bar-bg"><div class="cat-bar-fg" style="width:${(d.correct/d.total)*100}%;background:${d.color};"></div></div>
+        <div class="cat-frac mono">${d.correct}/${d.total}</div>
+      </div>`;
+    });
+    area.innerHTML = `
+      <div class="result-pct mono">${Math.round((score/QUESTIONS.length)*100)}%</div>
+      <div class="result-sub">${score}/${QUESTIONS.length} correct · best streak ${bestStreak}</div>
+      ${catHtml}
+      <button class="btn-secondary" style="margin-top:10px;" onclick="restart()">Run again</button>
+    `;
+    return;
+  }
+
+  const q = QUESTIONS[idx];
+  let optsHtml = '';
+  q.options.forEach((opt, i) => {
+    let cls = 'opt';
+    if (selected !== null) {
+      if (i === q.correct) cls += ' correct';
+      else if (i === selected) cls += ' wrong';
+      else cls += ' dim';
+    }
+    const mark = selected !== null && i === q.correct ? '✓' : (selected !== null && i === selected ? '✕' : '');
+    optsHtml += `<button class="${cls}" ${selected !== null ? 'disabled' : ''} onclick="pick(${i})"><span>${opt}</span><span>${mark}</span></button>`;
+  });
+
+  area.innerHTML = `
+    <div class="row" style="margin-bottom:12px;">
+      <span class="cat-badge" style="color:${q.color};background:${q.color}1A;border:1px solid ${q.color}55;">${q.category}</span>
+      <span class="mono" style="font-size:12px;color:#8FA8B3;">Q${idx+1} / ${QUESTIONS.length}</span>
+    </div>
+    <div class="qtext">${q.q}</div>
+    ${optsHtml}
+    ${selected !== null ? `<div class="explain"><div class="explain-title">Rationale</div><div class="explain-body">${q.explain}</div></div>
+    <button class="btn-primary" onclick="next()">${idx+1 >= QUESTIONS.length ? 'See results' : 'Next case'}</button>` : ''}
+  `;
+}
+
+function pick(i) {
+  if (selected !== null) return;
+  selected = i;
+  const q = QUESTIONS[idx];
+  const isCorrect = i === q.correct;
+  if (isCorrect) { score++; streak++; bestStreak = Math.max(bestStreak, streak); }
+  else { streak = 0; }
+  answered.push({ category: q.category, correct: isCorrect, color: q.color });
+  render();
+}
+
+function next() {
+  if (idx + 1 >= QUESTIONS.length) { done = true; render(); return; }
+  idx++; selected = null; render();
+}
+
+function restart() {
+  idx = 0; selected = null; score = 0; streak = 0; bestStreak = 0; answered = []; done = false;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

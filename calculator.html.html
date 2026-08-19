@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ER Dosing Reference</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0E1A24;
+    color: #E8F0F2;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 28px 16px;
+  }
+  .mono { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  .wrap { width: 100%; max-width: 420px; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .icon-box {
+    width: 36px; height: 36px; border-radius: 10px; background: rgba(47,184,198,0.15);
+    border: 1px solid rgba(47,184,198,0.4); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .title { font-size: 14px; font-weight: 700; }
+  .subtitle { font-size: 11px; color: #8FA8B3; }
+  .disclaimer {
+    border-radius: 12px; background: rgba(242,169,59,0.1); border: 1px solid rgba(242,169,59,0.4);
+    padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 8px; align-items: flex-start;
+  }
+  .disclaimer span.ico { color: #F2A93B; flex-shrink: 0; }
+  .disclaimer p { margin: 0; font-size: 12px; line-height: 1.5; color: rgba(242,169,59,0.9); }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #8FA8B3; margin-bottom: 6px; display: block; }
+  select, input {
+    width: 100%; background: #142430; border: 1px solid #22384A; border-radius: 12px;
+    padding: 12px 14px; font-size: 14px; color: #E8F0F2; outline: none;
+  }
+  select:focus, input:focus { border-color: #2FB8C6; }
+  .field { margin-bottom: 16px; }
+  .conc-note { margin-top: 6px; font-size: 11px; color: #8FA8B3; }
+  .mode-toggle { display: flex; background: #142430; border: 1px solid #22384A; border-radius: 12px; padding: 4px; margin-bottom: 16px; }
+  .mode-btn {
+    flex: 1; padding: 10px; border-radius: 8px; border: none; background: transparent;
+    color: #8FA8B3; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .mode-btn.active { background: #2FB8C6; color: #0E1A24; }
+  .weight-row { display: flex; gap: 8px; }
+  .unit-toggle { display: flex; background: #142430; border: 1px solid #22384A; border-radius: 12px; padding: 4px; }
+  .unit-btn { padding: 0 14px; border-radius: 8px; border: none; background: transparent; color: #8FA8B3; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .unit-btn.active { background: #35D07F; color: #0E1A24; }
+  .readout {
+    border-radius: 16px; background: #142430; border: 1px solid #22384A; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 0 30px -15px rgba(47,184,198,0.4);
+  }
+  .dose-big { font-size: 36px; font-weight: 700; color: #35D07F; line-height: 1; }
+  .dose-unit { font-size: 18px; color: #8FA8B3; margin-left: 4px; }
+  .dose-desc { font-size: 13px; color: #8FA8B3; margin-top: 8px; }
+  .cap-warning { margin-top: 8px; font-size: 12px; color: #F2A93B; display: flex; align-items: center; gap: 6px; }
+  .empty-state { font-size: 13px; color: #8FA8B3; padding: 12px 0; }
+  .note-box { border-radius: 12px; background: #0E1A24; border: 1px solid #22384A; padding: 14px; margin-bottom: 18px; }
+  .note-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #2FB8C6; font-weight: 700; margin-bottom: 6px; }
+  .note-body { font-size: 13px; line-height: 1.5; color: #8FA8B3; }
+  .vitals-toggle {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-radius: 12px; background: #142430; border: 1px solid #22384A;
+    color: #E8F0F2; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .chevron { transition: transform .2s ease; }
+  .chevron.open { transform: rotate(180deg); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; font-weight: 500; color: #8FA8B3; padding: 8px 10px; border-bottom: 1px solid #22384A; }
+  th.num, td.num { text-align: right; }
+  td { padding: 8px 10px; border-bottom: 1px solid #22384A; }
+  tr:last-child td { border-bottom: none; }
+  .vitals-wrap { margin-top: 8px; border-radius: 12px; background: #142430; border: 1px solid #22384A; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="icon-box">💉</div>
+    <div>
+      <div class="title">ER Dosing Reference</div>
+      <div class="subtitle">Study tool — verify against current protocols</div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <span class="ico">⚠</span>
+    <p>For education and review only. Not for real-time clinical dosing decisions — always confirm against your facility's current protocols and pharmacy references.</p>
+  </div>
+
+  <div class="field">
+    <label class="label">Medication</label>
+    <select id="drugSelect" onchange="onDrugChange()"></select>
+    <div class="conc-note" id="concNote"></div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeAdult" onclick="setMode('adult')">Adult (fixed dose)</button>
+    <button class="mode-btn" id="modePeds" onclick="setMode('peds')">Pediatric (weight-based)</button>
+  </div>
+
+  <div class="field" id="weightField" style="display:none;">
+    <label class="label">Patient weight</label>
+    <div class="weight-row">
+      <input type="number" inputmode="decimal" id="weightInput" placeholder="0.0" oninput="render()" />
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="unitKg" onclick="setUnit('kg')">kg</button>
+        <button class="unit-btn" id="unitLb" onclick="setUnit('lb')">lb</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="label">Calculated dose</div>
+    <div id="readoutBody"></div>
+  </div>
+
+  <div class="note-box">
+    <div class="note-title">Clinical note</div>
+    <div class="note-body" id="noteBody"></div>
+  </div>
+
+  <button class="vitals-toggle" onclick="toggleVitals()">
+    <span>Pediatric &amp; adult vitals reference</span>
+    <span class="chevron" id="vitalsChevron">▾</span>
+  </button>
+  <div class="vitals-wrap" id="vitalsWrap" style="display:none;"></div>
+</div>
+
+<script>
+const DRUGS = {
+  epi_arrest: { name: "Epinephrine — Cardiac Arrest", conc: "1:10,000 (0.1 mg/mL)", adultFixed: 1, adultUnit: "mg IV/IO push, q3–5min", pedsPerKg: 0.01, pedsMax: 1, pedsUnit: "mg IV/IO push, q3–5min",
+    note: "Follow each dose with a 20 mL flush and limb elevation. Confirm 1:10,000 concentration before drawing up — mixing this up with 1:1000 is a well-documented high-alert error." },
+  epi_anaphylaxis: { name: "Epinephrine — Anaphylaxis", conc: "1:1,000 (1 mg/mL)", adultFixed: 0.5, adultUnit: "mg IM, may repeat q5–15min", pedsPerKg: 0.01, pedsMax: 0.3, pedsUnit: "mg IM, may repeat q5–15min",
+    note: "IM into the vastus lateralis, not IV. This is the opposite concentration from cardiac-arrest dosing — double-check before drawing up." },
+  amiodarone: { name: "Amiodarone — Pulseless VT/VF", conc: "50 mg/mL", adultFixed: 300, adultUnit: "mg IV/IO push (first dose); 150 mg for repeat", pedsPerKg: 5, pedsMax: 300, pedsUnit: "mg/kg IV/IO push",
+    note: "Give after the 3rd defibrillation attempt in refractory VF/pulseless VT, per current ACLS/PALS sequencing." },
+  adenosine: { name: "Adenosine — SVT", conc: "3 mg/mL", adultFixed: 6, adultUnit: "mg rapid IV push (first dose); 12 mg for repeat", pedsPerKg: 0.1, pedsMax: 6, pedsUnit: "mg/kg rapid IV push (first dose)",
+    note: "Push through the most proximal IV access, immediately follow with a rapid saline flush. Warn the patient about a brief feeling of impending doom." },
+  atropine: { name: "Atropine — Symptomatic Bradycardia", conc: "0.1 mg/mL", adultFixed: 0.5, adultUnit: "mg IV, q3–5min, max total 3 mg", pedsPerKg: 0.02, pedsMax: 0.5, pedsUnit: "mg/kg IV (minimum single dose 0.1 mg)",
+    note: "Watch for paradoxical bradycardia at very low doses in pediatric patients — this is why there's a minimum dose floor." },
+  naloxone: { name: "Naloxone — Opioid Overdose", conc: "0.4 mg/mL (IV) or 4 mg/spray (IN)", adultFixed: 0.4, adultUnit: "mg IV/IM/IN, titrate to respirations, may repeat q2–3min", pedsPerKg: 0.1, pedsMax: 2, pedsUnit: "mg/kg IV/IM/IN",
+    note: "Titrate to adequate respiratory effort, not full consciousness, in opioid-dependent patients — over-reversal can precipitate acute withdrawal and combativeness." }
+};
+
+const VITALS_REF = [
+  { age: "Newborn", hr: "100–180", rr: "30–60", sbp: "60–90" },
+  { age: "Infant (1–12mo)", hr: "100–160", rr: "24–38", sbp: "70–100" },
+  { age: "Toddler (1–3yr)", hr: "90–150", rr: "22–30", sbp: "80–110" },
+  { age: "Child (3–12yr)", hr: "70–120", rr: "18–24", sbp: "90–120" },
+  { age: "Adolescent (12+)", hr: "60–100", rr: "12–20", sbp: "100–120" },
+  { age: "Adult", hr: "60–100", rr: "12–20", sbp: "90–120" }
+];
+
+let drugKey = "epi_arrest", mode = "adult", unit = "kg";
+
+function initSelect() {
+  const sel = document.getElementById('drugSelect');
+  Object.entries(DRUGS).forEach(([key, d]) => {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = d.name;
+    sel.appendChild(opt);
+  });
+  sel.value = drugKey;
+}
+
+function onDrugChange() {
+  drugKey = document.getElementById('drugSelect').value;
+  render();
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeAdult').classList.toggle('active', m === 'adult');
+  document.getElementById('modePeds').classList.toggle('active', m === 'peds');
+  document.getElementById('weightField').style.display = m === 'peds' ? 'block' : 'none';
+  render();
+}
+
+function setUnit(u) {
+  unit = u;
+  document.getElementById('unitKg').classList.toggle('active', u === 'kg');
+  document.getElementById('unitLb').classList.toggle('active', u === 'lb');
+  render();
+}
+
+function toggleVitals() {
+  const wrap = document.getElementById('vitalsWrap');
+  const chevron = document.getElementById('vitalsChevron');
+  const isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+  if (!isOpen && wrap.innerHTML === '') {
+    let rows = '';
+    VITALS_REF.forEach(v => {
+      rows += `<tr><td>${v.age}</td><td class="num mono" style="color:#35D07F;">${v.hr}</td><td class="num mono" style="color:#2FB8C6;">${v.rr}</td><td class="num mono" style="color:#F2A93B;">${v.sbp}</td></tr>`;
+    });
+    wrap.innerHTML = `<table><thead><tr><th>Age</th><th class="num">HR</th><th class="num">RR</th><th class="num">SBP</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+}
+
+function render() {
+  const drug = DRUGS[drugKey];
+  document.getElementById('concNote').textContent = 'Concentration: ' + drug.conc;
+  document.getElementById('noteBody').textContent = drug.note;
+
+  const body = document.getElementById('readoutBody');
+
+  if (mode === 'adult') {
+    body.innerHTML = `<div class="dose-big mono">${drug.adultFixed}<span class="dose-unit">mg</span></div><div class="dose-desc">${drug.adultUnit}</div>`;
+    return;
+  }
+
+  const raw = parseFloat(document.getElementById('weightInput').value);
+  if (isNaN(raw) || raw <= 0) {
+    body.innerHTML = `<div class="empty-state">Enter a patient weight to calculate.</div>`;
+    return;
+  }
+  const weightKg = unit === 'lb' ? raw / 2.20462 : raw;
+  let dose = +(drug.pedsPerKg * weightKg).toFixed(3);
+  const capped = dose > drug.pedsMax;
+  if (capped) dose = drug.pedsMax;
+
+  body.innerHTML = `<div class="dose-big mono">${dose}<span class="dose-unit">mg</span></div><div class="dose-desc">${drug.pedsUnit}</div>` +
+    (capped ? `<div class="cap-warning">⚠ Weight-based calc exceeded the max — capped at ${drug.pedsMax} mg</div>` : '');
+}
+
+initSelect();
+render();
+</script>
+</body>
+</html>
