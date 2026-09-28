@@ -1,11 +1,14 @@
 /* Pulse & Protocol service worker
    Bump CACHE_VERSION whenever any precached file changes so clients pick up
-   the new copies and old caches are cleaned up. */
-const CACHE_VERSION = 'v1';
+   the new copies and old caches are cleaned up. The GitHub Pages workflow
+   stamps it with the commit SHA on every deploy, so a manual bump only
+   matters for other hosts. */
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `pulse-protocol-${CACHE_VERSION}`;
 
 // Paths are relative to the service worker, so the app works from a sub-path
 // (e.g. https://user.github.io/Pulse-Protocol/) as well as a domain root.
+// Every file here must exist: one 404 fails the install and disables offline.
 const PRECACHE = [
   './',
   'index.html',
@@ -15,6 +18,7 @@ const PRECACHE = [
   'css/home.css',
   'css/calculator.css',
   'css/quiz.css',
+  'js/theme.js',
   'js/pwa.js',
   'manifest.webmanifest',
   'icons/icon.svg',
@@ -25,12 +29,32 @@ const PRECACHE = [
   'icons/favicon-32.png'
 ];
 
+// Cached when present, skipped (without failing the install) when missing.
+// These are the calculator/quiz data and logic files from the content PR
+// (claude/pulse-content); once that is on main, move them into PRECACHE.
+const PRECACHE_OPTIONAL = [
+  'js/dosing.js',
+  'js/drugs.js',
+  'js/calculator.js',
+  'js/questions.js',
+  'js/quiz.js'
+];
+
+// Offline-ish connections ("lie-fi") can hang for a long time. After this long,
+// a page that is already cached is served from the cache instead.
+const NAV_TIMEOUT_MS = 4000;
+
+// cache: 'reload' bypasses the HTTP cache so a new version never precaches
+// stale files.
+const fresh = url => new Request(url, { cache: 'reload' });
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      // cache: 'reload' bypasses the HTTP cache so a new version never
-      // precaches stale files.
-      .then(cache => cache.addAll(PRECACHE.map(url => new Request(url, { cache: 'reload' }))))
+      .then(cache => Promise.all([
+        cache.addAll(PRECACHE.map(fresh)),
+        ...PRECACHE_OPTIONAL.map(url => cache.add(fresh(url)).catch(() => {}))
+      ]))
       .then(() => self.skipWaiting())
   );
 });
@@ -45,6 +69,14 @@ self.addEventListener('activate', event => {
   );
 });
 
+function saveCopy(event, request, response) {
+  if (response.ok && response.type === 'basic') {
+    const copy = response.clone();
+    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, copy)));
+  }
+  return response;
+}
+
 self.addEventListener('fetch', event => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -53,21 +85,25 @@ self.addEventListener('fetch', event => {
 
   if (request.mode === 'navigate') {
     // Pages: network-first so content updates show up immediately when
-    // online; fall back to the cached copy (or the home page) offline.
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() =>
-          caches.match(request, { ignoreSearch: true })
+    // online; fall back to the cached copy (or the home page) offline or when
+    // the network is too slow to answer.
+    const cached = () => caches.match(request, { ignoreSearch: true });
+    const network = fetch(request).then(response => saveCopy(event, request, response));
+    // Keep the worker alive to cache the fresh copy even if the cache won the race.
+    event.waitUntil(network.catch(() => {}));
+    event.respondWith(new Promise(resolve => {
+      let settled = false;
+      const settle = response => { if (response && !settled) { settled = true; resolve(response); } };
+      const timer = setTimeout(() => cached().then(settle), NAV_TIMEOUT_MS);
+      network
+        .then(response => { clearTimeout(timer); settle(response); })
+        .catch(() => {
+          clearTimeout(timer);
+          cached()
             .then(hit => hit || caches.match('index.html'))
-        )
-    );
+            .then(hit => settle(hit || Response.error()));
+        });
+    }));
     return;
   }
 
@@ -75,13 +111,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then(cached => {
       const network = fetch(request)
-        .then(response => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-          }
-          return response;
-        })
+        .then(response => saveCopy(event, request, response))
         .catch(() => cached);
       if (cached) {
         event.waitUntil(network.catch(() => {}));

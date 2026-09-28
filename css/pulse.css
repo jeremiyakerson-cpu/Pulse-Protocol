@@ -25,6 +25,11 @@
   --teal-rgb: 47, 184, 198;
   --amber-rgb: 242, 169, 59;
   --red-rgb: 229, 83, 61;
+  --purple-rgb: 185, 140, 224;
+
+  --nav-bg: rgba(14, 26, 36, 0.92);
+  --statusbar-bg: #0E1A24; /* iOS standalone status-bar strip (always dark: the bar's text is white) */
+  --shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
 
   /* Type */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -46,6 +51,37 @@
   --shell-pad: 16px;
 
   color-scheme: dark;
+}
+
+/* Light theme. js/theme.js sets data-theme from the saved choice or the
+   system preference. Accents are darkened so text on --bg/--surface still
+   meets WCAG AA. */
+:root[data-theme="light"] {
+  --bg: #F4F7F8;
+  --surface: #FFFFFF;
+  --border: #D3DEE3;
+
+  --text: #0E1A24;
+  --text-soft: #26394A;
+  --text-muted: #4A6070;
+  --text-faint: #5B6F7B;
+
+  --green: #0E7A45;
+  --teal: #0A6F7C;
+  --amber: #8F5300;
+  --red: #B8321E;
+  --purple: #7440A8;
+
+  --green-rgb: 14, 122, 69;
+  --teal-rgb: 10, 111, 124;
+  --amber-rgb: 143, 83, 0;
+  --red-rgb: 184, 50, 30;
+  --purple-rgb: 116, 64, 168;
+
+  --nav-bg: rgba(244, 247, 248, 0.92);
+  --shadow: 0 8px 24px -12px rgba(14, 26, 36, 0.25);
+
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -89,7 +125,8 @@ body {
 
 .site-nav {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(14, 26, 36, 0.92);
+  /* The strip under the iOS status bar stays dark so its white text is legible */
+  background: linear-gradient(var(--statusbar-bg) env(safe-area-inset-top, 0px), var(--nav-bg) env(safe-area-inset-top, 0px));
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
@@ -116,6 +153,14 @@ body {
 .nav-links a:hover { color: var(--text); background: var(--surface); }
 .nav-links a[aria-current="page"] { color: var(--green); background: rgba(var(--green-rgb), 0.1); }
 
+/* Theme toggle (injected into .nav-links by js/theme.js) */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--tap); height: var(--tap); padding: 0; border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1;
+}
+.theme-toggle:hover { color: var(--text); background: var(--surface); }
+
 /* Offline indicator (toggled by js/pwa.js) */
 .offline-badge {
   display: none; margin-left: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -133,6 +178,47 @@ html.is-offline .offline-badge { display: inline-block; }
   }
   .nav-brand { min-width: var(--tap); justify-content: center; }
 }
+
+@media (max-width: 400px) {
+  .nav-links a { padding: 0 8px; }
+}
+
+/* ---------- Toast (update available / ready offline; js/pwa.js) ---------- */
+.toast {
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: calc(100% - 2 * var(--shell-pad)); max-width: var(--shell-w);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px 8px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--teal); box-shadow: var(--shadow);
+  color: var(--text); font-size: 13px; line-height: 1.4;
+}
+.toast[hidden] { display: none; }
+.toast-msg { flex: 1; }
+.toast-btn {
+  min-height: var(--tap); padding: 0 14px; border-radius: var(--radius-sm); border: none;
+  background: var(--green); color: var(--bg); font-weight: 700; font-size: 13px;
+}
+.toast-close {
+  min-width: var(--tap); min-height: var(--tap); border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-size: 18px;
+}
+
+/* ---------- Light theme: legacy inline colours ----------
+   Some calculator/quiz markup is generated with hard-coded dark-theme colours
+   in style="" attributes. Remap them to tokens so the light theme stays legible
+   without touching that logic. !important is what lets a stylesheet beat an
+   inline style. */
+:root[data-theme="light"] [style*="color:#E8F0F2" i] { color: var(--text) !important; }
+:root[data-theme="light"] [style*="color:#8FA8B3" i] { color: var(--text-muted) !important; }
+:root[data-theme="light"] [style*="color:#35D07F" i] { color: var(--green) !important; }
+:root[data-theme="light"] [style*="color:#2FB8C6" i] { color: var(--teal) !important; }
+:root[data-theme="light"] [style*="color:#F2A93B" i] { color: var(--amber) !important; }
+:root[data-theme="light"] [style*="color:#E5533D" i] { color: var(--red) !important; }
+:root[data-theme="light"] [style*="color:#B98CE0" i] { color: var(--purple) !important; }
+:root[data-theme="light"] [style*="background:#0E1A24" i] { background: var(--bg) !important; }
+:root[data-theme="light"] [style*="background:#142430" i] { background: var(--surface) !important; }
+:root[data-theme="light"] [style*="solid #22384A" i] { border-color: var(--border) !important; }
 
 /* ---------- Accessibility ---------- */
 .visually-hidden {
@@ -159,3 +245,5 @@ button:not(:disabled), select, a { cursor: pointer; }
 @media (forced-colors: active) {
   .dot { forced-color-adjust: none; }
 }
+
+[hidden] { display: none !important; }

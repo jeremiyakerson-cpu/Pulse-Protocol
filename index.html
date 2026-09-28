@@ -6,7 +6,7 @@
 <title>Pulse & Protocol | ER-Tested Nursing Education</title>
 <meta name="description" content="ER-tested nursing education from a practicing ER nurse: free dosing reference, study quiz, and bedside guides." />
 <meta name="theme-color" content="#0E1A24" />
-<meta name="color-scheme" content="dark" />
+<meta name="color-scheme" content="dark light" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -17,6 +17,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <link rel="stylesheet" href="css/pulse.css" />
 <link rel="stylesheet" href="css/home.css" />
+<script src="js/theme.js"></script>
 <script src="js/pwa.js" defer></script>
 </head>
 <body>
@@ -36,40 +37,92 @@
 </nav>
 <main class="home" id="main" tabindex="-1">
 
-  <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Live &amp; Practicing ER Nurse</div>
-  <h1 class="brand">Pulse <span>&amp;</span> Protocol</h1>
-  <div class="tagline">ER-tested nursing education, built for the bedside &mdash; not the classroom.</div>
-
-  <div class="about-card">
-    <div class="about-text">
-      Written and built by a working emergency room nurse with a decade of bedside experience. Every guide, calculator, and quiz comes from real clinical judgment &mdash; not a template, not AI-generated fluff.
+  <header class="hero">
+    <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Live &amp; Practicing ER Nurse</div>
+    <h1 class="brand">Pulse <span>&amp;</span> Protocol</h1>
+    <p class="tagline">ER-tested nursing education, built for the bedside &mdash; not the classroom.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="calculator.html">Dosing reference</a>
+      <a class="btn btn-ghost" href="quiz.html">Take the quiz</a>
     </div>
-    <span class="credential">RN &middot; 10+ Years ER Experience</span>
+  </header>
+
+  <h2 class="section-label" id="tools-heading">Free Tools</h2>
+  <div class="tool-grid">
+
+    <section class="tool-card tool-dosing" id="dosing" aria-labelledby="dosing-title">
+      <div class="tool-head">
+        <div class="link-icon" aria-hidden="true">💉</div>
+        <div>
+          <h3 class="tool-title" id="dosing-title">ER Dosing Reference</h3>
+          <div class="link-sub">Weight-based calculator</div>
+        </div>
+      </div>
+      <p class="tool-desc">The resuscitation drugs you reach for most, with the math already done. Pick a drug, enter a weight, and read the dose.</p>
+      <ul class="tool-points">
+        <li>Adult fixed doses and pediatric weight-based doses</li>
+        <li>Weight in kg or lb, with max-dose caps flagged</li>
+        <li>Normal pediatric vitals by age, one tap away</li>
+      </ul>
+      <a class="btn btn-primary btn-block" href="calculator.html">Open the dosing reference <span aria-hidden="true">&rarr;</span></a>
+      <p class="tool-note">For education. Always confirm against your facility&rsquo;s protocols and pharmacy.</p>
+    </section>
+
+    <section class="tool-card tool-quiz" id="quiz" aria-labelledby="quiz-title">
+      <div class="tool-head">
+        <div class="link-icon" aria-hidden="true">🧠</div>
+        <div>
+          <h3 class="tool-title" id="quiz-title">ER Study Monitor</h3>
+          <div class="link-sub">Interactive case-based quiz</div>
+        </div>
+      </div>
+      <p class="tool-desc">Real-feeling ER cases, one decision at a time. Every answer comes with the reasoning a charge nurse would give you.</p>
+      <ul class="tool-points">
+        <li>Triage, cardiac, trauma, sepsis, stroke, airway and more</li>
+        <li>Live score and streak while you work</li>
+        <li>Category breakdown at the end, so you know what to review</li>
+      </ul>
+      <a class="btn btn-primary btn-block" href="quiz.html">Start the quiz <span aria-hidden="true">&rarr;</span></a>
+      <p class="tool-note">Scenarios are fictionalized composites.</p>
+    </section>
+
+  </div>
+
+  <div class="offline-card" data-install-hide-standalone>
+    <div>
+      <div class="offline-title">Works with no signal</div>
+      <div class="offline-sub">Both tools save to your phone after your first visit, so they still open in a dead-zone trauma bay. <span class="ios-hint">On iPhone: Share &rarr; Add to Home Screen.</span></div>
+    </div>
+    <button type="button" class="btn btn-ghost" data-install hidden>Install app</button>
   </div>
 
   <div class="divider"></div>
 
-  <h2 class="section-label">Free Tools</h2>
-  <a href="quiz.html" class="link-card">
-    <div class="link-left">
-      <div class="link-icon" aria-hidden="true" style="background:rgba(53,208,127,0.15);border:1px solid rgba(53,208,127,0.4);">🧠</div>
-      <div>
-        <div class="link-title">ER Study Monitor</div>
-        <div class="link-sub">Interactive case-based quiz</div>
+  <section class="about" id="about" aria-labelledby="about-title">
+    <h2 class="section-label" id="about-title">About</h2>
+    <div class="about-card">
+      <div class="about-head">
+        <div class="about-avatar" aria-hidden="true">RN</div>
+        <div>
+          <div class="about-name">Written by a working ER nurse</div>
+          <div class="link-sub">Still working shifts in the ER</div>
+        </div>
       </div>
+      <p class="about-text">
+        Written and built by a working emergency room nurse with a decade of bedside experience. Every guide, calculator, and quiz comes from real clinical judgment &mdash; not a template, not AI-generated fluff.
+      </p>
+      <ul class="credentials" aria-label="Credentials">
+        <li class="credential">RN</li>
+        <li class="credential">10+ Years ER Experience</li>
+        <li class="credential">Practicing Bedside Nurse</li>
+      </ul>
+      <ul class="about-points">
+        <li><strong>Bedside first.</strong> Built for the moment you need it, on a phone, mid-shift.</li>
+        <li><strong>Education, not orders.</strong> Your facility&rsquo;s protocols and pharmacy always win.</li>
+        <li><strong>Independent.</strong> Not affiliated with any employer or healthcare institution.</li>
+      </ul>
     </div>
-    <div class="arrow" aria-hidden="true">→</div>
-  </a>
-  <a href="calculator.html" class="link-card">
-    <div class="link-left">
-      <div class="link-icon" aria-hidden="true" style="background:rgba(47,184,198,0.15);border:1px solid rgba(47,184,198,0.4);">💉</div>
-      <div>
-        <div class="link-title">ER Dosing Reference</div>
-        <div class="link-sub">Weight-based calculator</div>
-      </div>
-    </div>
-    <div class="arrow" aria-hidden="true">→</div>
-  </a>
+  </section>
 
   <div class="divider"></div>
 
@@ -96,9 +149,9 @@
       <div class="product-price">$11</div>
     </a>
   </div>
-  <a href="https://shoprn14.etsy.com" class="link-card" style="margin-top:2px;">
+  <a href="https://shoprn14.etsy.com" class="link-card">
     <div class="link-left">
-      <div class="link-icon" aria-hidden="true" style="background:rgba(242,169,59,0.15);border:1px solid rgba(242,169,59,0.4);">🛍️</div>
+      <div class="link-icon icon-amber" aria-hidden="true">🛍️</div>
       <div>
         <div class="link-title">Visit the Full Etsy Shop</div>
         <div class="link-sub">All products &amp; bundles</div>
@@ -112,7 +165,7 @@
   <h2 class="section-label">Follow the Content</h2>
   <a href="https://pin.it/5EXGY1Ocn" class="link-card">
     <div class="link-left">
-      <div class="link-icon" aria-hidden="true" style="background:rgba(229,83,61,0.15);border:1px solid rgba(229,83,61,0.4);">📌</div>
+      <div class="link-icon icon-red" aria-hidden="true">📌</div>
       <div>
         <div class="link-title">Pinterest</div>
         <div class="link-sub">New pins weekly</div>
