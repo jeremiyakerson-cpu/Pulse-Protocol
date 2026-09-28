@@ -17,7 +17,7 @@ QUESTIONS.forEach(q => {
   assert.ok(typeof q.explain === 'string' && q.explain.length > 30, where + ': rationale');
   perCat[q.cat] = (perCat[q.cat] || 0) + 1;
 });
-assert.ok(QUESTIONS.length >= 100, 'expected ≥100 questions, got ' + QUESTIONS.length);
+assert.ok(QUESTIONS.length >= 200, 'expected ≥200 questions, got ' + QUESTIONS.length);
 Object.keys(CATEGORIES).forEach(c => assert.ok(perCat[c] >= 10, c + ' has only ' + (perCat[c] || 0)));
 
 // Answer positions are informational only — quiz.js shuffles options at runtime.
