@@ -13,7 +13,7 @@
  * Dose spec types:
  *   { type: 'fixed',  dose: n | [lo, hi], unit, desc, perMl? }
  *   { type: 'weight', perKg: n | [lo, hi], unit, desc, min?, max?, perMl?, extras?: [{ label, perKg, max? }] }
- *   { type: 'tiered', unit, desc, tiers: [{ minKg?, maxKg?, dose }] }        (minKg inclusive, maxKg exclusive)
+ *   { type: 'tiered', unit, desc, tiers: [{ minKg?, maxKg?, overKg?, dose }] } (minKg/maxKg inclusive, overKg exclusive)
  *   { type: 'infusion', rateUnit, range: [lo, hi], start, desc, concs: [{ label, amount, unit, volumeMl }],
  *       bolus?: { perKg?, dose?, max?, unit, desc }, capPerHr? }             (capPerHr in rateUnit's amount per hr)
  *   { type: 'text', text, desc }
@@ -532,7 +532,7 @@
       id: 'midazolam_im', name: 'Midazolam IM — Status epilepticus', group: 'Neuro',
       conc: '5 mg/mL',
       adult: { type: 'fixed', dose: 10, unit: 'mg', perMl: 5, desc: 'IM, single dose (>40 kg)' },
-      peds: { type: 'tiered', unit: 'mg', desc: 'IM, single dose', tiers: [{ minKg: 13, maxKg: 40, dose: 5 }, { minKg: 40, dose: 10 }] },
+      peds: { type: 'tiered', unit: 'mg', desc: 'IM, single dose', tiers: [{ minKg: 13, maxKg: 40, dose: 5 }, { overKg: 40, dose: 10 }] },
       note: 'First-line when no IV access (RAMPART). Intranasal and buccal routes are alternatives.',
       warnings: ['No dose listed below 13 kg in this reference — use your pediatric protocol.'],
       source: 'American Epilepsy Society 2016 / RAMPART'

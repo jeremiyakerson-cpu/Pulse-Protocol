@@ -140,4 +140,173 @@ test('drug data schema', () => {
   assert.ok(DRUGS.length >= 50, 'expected ≥50 drugs, got ' + DRUGS.length);
 });
 
+// ── pass 2: edge cases ──
+test('toKg rejects 0, negative, NaN, Infinity, junk', () => {
+  [0, -1, -0.5, NaN, Infinity, -Infinity, 'abc', '', null, undefined].forEach(v =>
+    assert.ok(isNaN(D.toKg(v, 'kg')) && isNaN(D.toKg(v, 'lb')), 'accepted ' + v));
+});
+test('toKg accepts numeric strings; lb uses 2.20462', () => {
+  assert.strictEqual(D.toKg('22', 'kg'), 22);
+  near(D.toKg('2.20462', 'lb'), 1);
+  near(D.toKg(220.462, 'lb'), 100);
+});
+test('weightDose returns null for 0 / negative / NaN / Infinity kg', () => {
+  const s = byId('epi_arrest').peds;
+  [0, -5, NaN, Infinity, undefined].forEach(kg => assert.strictEqual(D.weightDose(s, kg), null, String(kg)));
+});
+test('weightDose tiny neonate (0.5 kg) epi arrest = 0.005 mg, no floor', () => {
+  const r = D.weightDose(byId('epi_arrest').peds, 0.5);
+  assert.strictEqual(r.low, 0.005); assert.ok(!r.capped && !r.floored);
+});
+test('weightDose: cap and floor both apply at the edges exactly', () => {
+  const at = D.weightDose(byId('atropine').peds, 25);          // 0.02 × 25 = 0.5 → exactly max, not "capped"
+  assert.strictEqual(at.low, 0.5); assert.ok(!at.capped);
+  const fl = D.weightDose(byId('atropine').peds, 5);           // 0.02 × 5 = 0.1 → exactly min, not "floored"
+  assert.strictEqual(fl.low, 0.1); assert.ok(!fl.floored);
+});
+test('weightDose range where only the high end is capped', () => {
+  const r = D.weightDose(byId('magnesium_asthma').peds, 40);   // 25–75 mg/kg × 40 = 1000–3000, max 2000
+  assert.strictEqual(r.low, 1000); assert.strictEqual(r.high, 2000); assert.ok(r.capped);
+});
+test('roundDose tie cases round half-up without float error', () => {
+  assert.strictEqual(D.roundDose(1.005), 1.01);
+  assert.strictEqual(D.roundDose(2.675), 2.68);
+  assert.strictEqual(D.roundDose(0.0005), 0.001);
+  assert.strictEqual(D.roundDose(10.05), 10.1);
+  assert.strictEqual(D.roundDose(99.95), 100);
+  assert.strictEqual(D.roundDose(-1.005), -1.01);
+  assert.strictEqual(D.roundDose(0), 0);
+});
+test('roundDose precision bands: ≥100 → 0 dp, ≥10 → 1, ≥1 → 2, <1 → 3', () => {
+  assert.strictEqual(D.roundDose(123.4), 123);
+  assert.strictEqual(D.roundDose(12.34), 12.3);
+  assert.strictEqual(D.roundDose(1.234), 1.23);
+  assert.strictEqual(D.roundDose(0.1234), 0.123);
+});
+test('roundDose passes NaN/Infinity through', () => { assert.ok(isNaN(D.roundDose(NaN))); assert.strictEqual(D.roundDose(Infinity), Infinity); });
+test('concPerMl / infusion reject zero, negative or missing concentration', () => {
+  [bag(0, 'mg', 250), bag(4, 'mg', 0), bag(-4, 'mg', 250), bag(4, 'mg', -1), bag(NaN, 'mg', 250), null].forEach(c => {
+    assert.ok(isNaN(D.concPerMl(c, 'mcg')), JSON.stringify(c));
+    assert.ok(isNaN(D.infusionRateMlHr(8, 'mcg/min', c)), 'rate ' + JSON.stringify(c));
+  });
+});
+test('infusion rejects negative / NaN / Infinity dose and weight', () => {
+  const c = bag(400, 'mg', 250);
+  assert.ok(isNaN(D.infusionRateMlHr(-1, 'mcg/kg/min', c, 70)));
+  assert.ok(isNaN(D.infusionRateMlHr(NaN, 'mcg/kg/min', c, 70)));
+  assert.ok(isNaN(D.infusionRateMlHr(Infinity, 'mcg/kg/min', c, 70)));
+  assert.ok(isNaN(D.infusionRateMlHr(5, 'mcg/kg/min', c, 0)));
+  assert.ok(isNaN(D.infusionRateMlHr(5, 'mcg/kg/min', c, -70)));
+  assert.ok(isNaN(D.infusionRateMlHr(5, 'mcg/kg/min', c, Infinity)));
+  assert.strictEqual(D.infusionRateMlHr(0, 'mcg/kg/min', c, 70), 0);
+});
+test('non-per-kg infusion ignores weight entirely', () => {
+  const c = bag(4, 'mg', 250);
+  assert.strictEqual(D.infusionRateMlHr(8, 'mcg/min', c), D.infusionRateMlHr(8, 'mcg/min', c, 500));
+});
+test('doseFromRate rejects negative rate', () => assert.ok(isNaN(D.doseFromRate(-1, 'mcg/min', bag(4, 'mg', 250)))));
+test('mcg/kg/min ↔ mL/hr hand checks across unit systems', () => {
+  // norepi 0.1 mcg/kg/min × 80 kg × 60 = 480 mcg/hr ÷ 16 mcg/mL = 30 mL/hr
+  near(D.infusionRateMlHr(0.1, 'mcg/kg/min', bag(4, 'mg', 250), 80), 30);
+  // same bag written in mcg or g must give the same rate
+  near(D.infusionRateMlHr(0.1, 'mcg/kg/min', bag(4000, 'mcg', 250), 80), 30);
+  near(D.infusionRateMlHr(0.1, 'mcg/kg/min', bag(0.004, 'g', 250), 80), 30);
+  // esmolol 50 mcg/kg/min × 70 kg × 60 = 210,000 mcg/hr = 210 mg/hr ÷ 10 mg/mL = 21 mL/hr
+  near(D.infusionRateMlHr(50, 'mcg/kg/min', bag(2500, 'mg', 250), 70), 21);
+  // amiodarone 0.5 mg/min × 60 = 30 mg/hr ÷ 1.8 mg/mL = 16.67 mL/hr
+  near(D.infusionRateMlHr(0.5, 'mg/min', bag(360, 'mg', 200), undefined), 16.667, 1e-3);
+  // octreotide 50 mcg/hr ÷ 5 mcg/mL = 10 mL/hr
+  near(D.infusionRateMlHr(50, 'mcg/hr', bag(500, 'mcg', 100)), 10);
+  // pantoprazole 8 mg/hr ÷ 0.8 mg/mL = 10 mL/hr
+  near(D.infusionRateMlHr(8, 'mg/hr', bag(80, 'mg', 100)), 10);
+});
+test('heparin ACS: 12 units/kg/hr capped at 1000 units/hr ↔ 10 mL/hr at 100 units/mL', () => {
+  const s = byId('heparin_acs').adult;
+  const kg = 100, dose = Math.min(s.start, s.capPerHr / kg);   // 12 × 100 = 1200 > 1000 → 10 units/kg/hr
+  near(D.infusionRateMlHr(dose, s.rateUnit, s.concs[0], kg), 10);
+  const b = D.weightDose(s.bolus, 100);                        // 60 × 100 = 6000 → capped 4000
+  assert.strictEqual(b.low, 4000); assert.ok(b.capped);
+});
+test('tierFor midazolam IM: <13 none, 13–40 → 5 mg (40 inclusive), >40 → 10 mg', () => {
+  const s = byId('midazolam_im').peds;
+  assert.strictEqual(D.tierFor(s, 12.9), null);
+  assert.strictEqual(D.tierFor(s, 13).dose, 5);
+  assert.strictEqual(D.tierFor(s, 40).dose, 5);
+  assert.strictEqual(D.tierFor(s, 40.01).dose, 10);
+  assert.strictEqual(D.tierFor(s, 0), null);
+  assert.strictEqual(D.tierFor(s, NaN), null);
+});
+test('weightWarnings: implausible, peds-heavy, adult-light, normal', () => {
+  assert.strictEqual(D.weightWarnings(70, 'adult').length, 0);
+  assert.strictEqual(D.weightWarnings(20, 'peds').length, 0);
+  assert.strictEqual(D.weightWarnings(0.2, 'peds').length, 1);
+  assert.strictEqual(D.weightWarnings(1000, 'adult').length, 1);
+  assert.ok(/pediatric mode/i.test(D.weightWarnings(120, 'peds')[0]));
+  assert.ok(/adult mode/i.test(D.weightWarnings(12, 'adult')[0]));
+  assert.strictEqual(D.weightWarnings(NaN, 'adult').length, 0);
+});
+
+// ── pass 2: sweep every drug × population × weight ──
+const WEIGHTS = [0.5, 1, 3, 10, 13, 25, 40, 70, 100, 150, 300, 1e6];
+test('sweep: weight doses finite, within [min, max], volumes finite', () => {
+  DRUGS.forEach(d => ['adult', 'peds'].forEach(pop => {
+    const s = d[pop]; if (!s || s.type !== 'weight') return;
+    WEIGHTS.forEach(kg => {
+      const where = `${d.id}.${pop}@${kg}kg`;
+      [s].concat(s.extras || []).forEach(x => {
+        const r = D.weightDose(x, kg);
+        assert.ok(isFinite(r.low) && isFinite(r.high) && r.low <= r.high && r.low > 0, where);
+        if (x.max != null) assert.ok(r.high <= x.max, where + ' exceeds max');
+        if (x.min != null) assert.ok(r.low >= x.min, where + ' below min');
+      });
+      if (s.perMl) assert.ok(isFinite(D.volumeMl(D.weightDose(s, kg).high, s.perMl)), where + ' volume');
+    });
+  }));
+});
+test('sweep: capped drugs actually hit their cap at 1e6 kg', () => {
+  DRUGS.forEach(d => ['adult', 'peds'].forEach(pop => {
+    const s = d[pop]; if (!s || s.type !== 'weight' || s.max == null) return;
+    const r = D.weightDose(s, 1e6);
+    assert.strictEqual(r.high, s.max, d.id + '.' + pop); assert.ok(r.capped);
+  }));
+});
+test('sweep: infusion rate finite, monotonic, and round-trips for every conc and weight', () => {
+  DRUGS.forEach(d => ['adult', 'peds'].forEach(pop => {
+    const s = d[pop]; if (!s || s.type !== 'infusion') return;
+    const u = D.parseRateUnit(s.rateUnit);
+    s.concs.forEach(c => [1, 10, 70, 150].forEach(kg => {
+      const where = `${d.id}.${pop} ${c.label} @${kg}kg`;
+      const lo = D.infusionRateMlHr(s.range[0], s.rateUnit, c, kg);
+      const hi = D.infusionRateMlHr(s.range[1], s.rateUnit, c, kg);
+      assert.ok(isFinite(lo) && isFinite(hi) && lo > 0 && lo <= hi, where);
+      near(D.doseFromRate(hi, s.rateUnit, c, kg), s.range[1], 1e-9);
+      if (!u.perKg) assert.strictEqual(lo, D.infusionRateMlHr(s.range[0], s.rateUnit, c, 1), where + ' weight leak');
+    }));
+  }));
+});
+test('sweep: kg and equivalent lb give identical doses', () => {
+  DRUGS.forEach(d => ['adult', 'peds'].forEach(pop => {
+    const s = d[pop]; if (!s || s.type !== 'weight') return;
+    [5, 22, 88].forEach(kg => {
+      const a = D.weightDose(s, D.toKg(kg, 'kg')), b = D.weightDose(s, D.toKg(kg * D.LB_PER_KG, 'lb'));
+      assert.deepStrictEqual(a, b, d.id + '.' + pop + '@' + kg);
+    });
+  }));
+});
+test('sweep: every tiered spec has non-overlapping bands', () => {
+  DRUGS.forEach(d => ['adult', 'peds'].forEach(pop => {
+    const s = d[pop]; if (!s || s.type !== 'tiered') return;
+    for (let kg = 0.5; kg <= 200; kg += 0.25) {
+      const hits = s.tiers.filter(t => D.tierFor({ tiers: [t] }, kg));
+      assert.ok(hits.length <= 1, d.id + ' overlapping bands at ' + kg);
+    }
+  }));
+});
+test('every drug has a source note; every review flag is a non-empty string', () => {
+  DRUGS.forEach(d => {
+    assert.ok(d.source && d.source.length > 3, d.id);
+    if ('review' in d) assert.ok(typeof d.review === 'string' && d.review.length > 10, d.id);
+  });
+});
+
 console.log(`${passed} passed${process.exitCode ? ', some FAILED' : ''}`);

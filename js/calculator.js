@@ -91,20 +91,24 @@
     var custom = document.createElement('option');
     custom.value = 'custom'; custom.textContent = 'Custom concentration…';
     cs.appendChild(custom);
-    var amountUnit = D.parseRateUnit(spec.rateUnit).amount;
-    $('customAmountUnit').textContent = amountUnit === 'mcg' ? 'mg' : amountUnit;
+    $('customAmountUnit').textContent = customUnit(spec);
     $('customAmount').value = '';
     $('customVolume').value = '';
     $('customConc').style.display = 'none';
   }
 
+  // Custom bags are entered in the same unit as the preset bags (mg for norepinephrine, mcg for octreotide),
+  // so the number typed matches how the bag label reads.
+  function customUnit(spec) {
+    return spec.concs[0].unit;
+  }
+
   function selectedConc(spec) {
     var v = $('concSelect').value;
     if (v !== 'custom') return spec.concs[Number(v)];
-    var amountUnit = D.parseRateUnit(spec.rateUnit).amount;
     return {
       amount: parseFloat($('customAmount').value),
-      unit: amountUnit === 'mcg' ? 'mg' : amountUnit,
+      unit: customUnit(spec),
       volumeMl: parseFloat($('customVolume').value)
     };
   }
@@ -146,11 +150,10 @@
   }
 
   function renderTiered(spec, kg) {
-    var tier = spec.tiers.filter(function (t) {
-      return (t.minKg == null || kg >= t.minKg) && (t.maxKg == null || kg < t.maxKg);
-    })[0];
+    var tier = D.tierFor(spec, kg);
     if (!tier) return empty('No dose listed for ' + fmt(kg) + ' kg in this reference — follow your protocol.');
-    var band = (tier.minKg != null ? tier.minKg : 0) + (tier.maxKg != null ? '–' + tier.maxKg : '+') + ' kg';
+    var band = tier.overKg != null ? '>' + tier.overKg + ' kg'
+      : (tier.minKg != null ? tier.minKg : 0) + (tier.maxKg != null ? '–' + tier.maxKg : '+') + ' kg';
     return big(fmt(tier.dose), spec.unit) + desc(spec.desc + ' (weight band ' + band + ')');
   }
 
@@ -212,9 +215,10 @@
     if (spec.type === 'text') { body.innerHTML = '<div class="dose-desc" style="color:#E8F0F2;font-size:15px;">' + esc(spec.text) + '</div>' + desc(spec.desc); return; }
 
     var kg = weightKg();
-    if (spec.type === 'infusion') { body.innerHTML = renderInfusion(spec, kg); return; }
+    var checks = needsWeight(spec) ? D.weightWarnings(kg, state.mode).map(warn).join('') : '';
+    if (spec.type === 'infusion') { body.innerHTML = renderInfusion(spec, kg) + checks; return; }
     if (!(kg > 0)) { body.innerHTML = empty('Enter a patient weight to calculate.'); return; }
-    body.innerHTML = spec.type === 'tiered' ? renderTiered(spec, kg) : renderWeight(spec, kg);
+    body.innerHTML = (spec.type === 'tiered' ? renderTiered(spec, kg) : renderWeight(spec, kg)) + checks;
   }
 
   function renderNotes() {

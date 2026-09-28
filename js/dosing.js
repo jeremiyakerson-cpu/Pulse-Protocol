@@ -19,12 +19,30 @@
   }
 
   // Rounds for display: more decimals for small numbers, never shows float noise.
+  // Half-up on the magnitude; toPrecision() first so 1.005 → 1.01 (1.005 * 100 is 100.49999…).
   function roundDose(x) {
     if (!isFinite(x)) return x;
     var abs = Math.abs(x);
     var places = abs >= 100 ? 0 : abs >= 10 ? 1 : abs >= 1 ? 2 : 3;
     var f = Math.pow(10, places);
-    return Math.round(x * f) / f;
+    var r = Math.round(Number((abs * f).toPrecision(12))) / f;
+    return x < 0 ? -r : r;
+  }
+
+  // Plausibility prompts for an entered weight. These never change a dose — they ask the user to re-check.
+  var WEIGHT_LIMITS = { minKg: 0.4, maxKg: 350, pedsMaxKg: 100, adultMinKg: 30 };
+  function weightWarnings(kg, mode) {
+    var out = [];
+    if (!(kg > 0) || !isFinite(kg)) return out;
+    if (kg < WEIGHT_LIMITS.minKg || kg > WEIGHT_LIMITS.maxKg) {
+      out.push('Weight ' + roundDose(kg) + ' kg is outside the plausible range (' + WEIGHT_LIMITS.minKg + '–' +
+        WEIGHT_LIMITS.maxKg + ' kg) — check the value and the kg/lb setting.');
+    } else if (mode === 'peds' && kg > WEIGHT_LIMITS.pedsMaxKg) {
+      out.push('Pediatric mode with weight >' + WEIGHT_LIMITS.pedsMaxKg + ' kg — confirm kg vs lb, and consider adult dosing.');
+    } else if (mode === 'adult' && kg < WEIGHT_LIMITS.adultMinKg) {
+      out.push('Adult mode with weight <' + WEIGHT_LIMITS.adultMinKg + ' kg — confirm the weight, or switch to pediatric dosing.');
+    }
+    return out;
   }
 
   function clamp(x, min, max) {
@@ -40,7 +58,7 @@
    * Returns { low, high, capped, floored } — low === high for single-value doses.
    */
   function weightDose(spec, kg) {
-    if (!(kg > 0)) return null;
+    if (!(kg > 0) || !isFinite(kg)) return null;
     var range = Array.isArray(spec.perKg) ? spec.perKg : [spec.perKg, spec.perKg];
     var lo = clamp(range[0] * kg, spec.min, spec.max);
     var hi = clamp(range[1] * kg, spec.min, spec.max);
@@ -77,6 +95,7 @@
    * conc: { amount, unit, volumeMl }  e.g. { amount: 4, unit: 'mg', volumeMl: 250 }
    */
   function concPerMl(conc, asUnit) {
+    if (!conc || !(conc.amount > 0) || !(conc.volumeMl > 0) || !isFinite(conc.amount) || !isFinite(conc.volumeMl)) return NaN;
     return convertAmount(conc.amount, conc.unit, asUnit || conc.unit) / conc.volumeMl;
   }
 
@@ -86,8 +105,8 @@
    */
   function infusionRateMlHr(dose, rateUnit, conc, kg) {
     var u = parseRateUnit(rateUnit);
-    if (!(dose >= 0)) return NaN;
-    if (u.perKg && !(kg > 0)) return NaN;
+    if (!(dose >= 0) || !isFinite(dose)) return NaN;
+    if (u.perKg && !(kg > 0 && isFinite(kg))) return NaN;
     var perHour = dose * (u.perKg ? kg : 1) * (u.per === 'min' ? 60 : 1);
     return perHour / concPerMl(conc, u.amount);
   }
@@ -95,14 +114,32 @@
   // Inverse of infusionRateMlHr: what dose is a given pump rate delivering?
   function doseFromRate(mlHr, rateUnit, conc, kg) {
     var u = parseRateUnit(rateUnit);
-    if (u.perKg && !(kg > 0)) return NaN;
+    if (!(mlHr >= 0) || !isFinite(mlHr)) return NaN;
+    if (u.perKg && !(kg > 0 && isFinite(kg))) return NaN;
     var perHour = mlHr * concPerMl(conc, u.amount);
     return perHour / (u.perKg ? kg : 1) / (u.per === 'min' ? 60 : 1);
   }
 
+  /*
+   * Weight-band dose. tiers: [{ minKg?, maxKg?, overKg?, dose }]
+   *   minKg / maxKg are inclusive bounds; overKg is an exclusive lower bound (e.g. ">40 kg").
+   * Returns the first matching tier, or null when the weight falls in no band.
+   */
+  function tierFor(spec, kg) {
+    if (!(kg > 0) || !isFinite(kg)) return null;
+    for (var i = 0; i < spec.tiers.length; i++) {
+      var t = spec.tiers[i];
+      if (t.minKg != null && kg < t.minKg) continue;
+      if (t.maxKg != null && kg > t.maxKg) continue;
+      if (t.overKg != null && !(kg > t.overKg)) continue;
+      return t;
+    }
+    return null;
+  }
+
   // Volume to draw up for a bolus: dose ÷ concentration (both in the same amount unit).
   function volumeMl(dose, concentrationPerMl) {
-    if (!(concentrationPerMl > 0)) return NaN;
+    if (!(concentrationPerMl > 0) || !(dose >= 0)) return NaN;
     return dose / concentrationPerMl;
   }
 
@@ -111,6 +148,9 @@
     toKg: toKg,
     roundDose: roundDose,
     weightDose: weightDose,
+    weightWarnings: weightWarnings,
+    WEIGHT_LIMITS: WEIGHT_LIMITS,
+    tierFor: tierFor,
     parseRateUnit: parseRateUnit,
     convertAmount: convertAmount,
     concPerMl: concPerMl,
