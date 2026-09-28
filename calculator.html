@@ -89,18 +89,18 @@
 
   <div class="disclaimer">
     <span class="ico">⚠</span>
-    <p>For education and review only. Not for real-time clinical dosing decisions — always confirm against your facility's current protocols and pharmacy references.</p>
+    <p><strong>Reference only — verify every dose with pharmacy and your facility's protocol.</strong> For education and review only. Not for real-time clinical dosing decisions; doses, concentrations and maximums vary by institution and change with guideline updates.</p>
   </div>
 
   <div class="field">
-    <label class="label">Medication</label>
+    <label class="label" for="drugSelect">Medication</label>
     <select id="drugSelect" onchange="onDrugChange()"></select>
     <div class="conc-note" id="concNote"></div>
   </div>
 
   <div class="mode-toggle">
-    <button class="mode-btn active" id="modeAdult" onclick="setMode('adult')">Adult (fixed dose)</button>
-    <button class="mode-btn" id="modePeds" onclick="setMode('peds')">Pediatric (weight-based)</button>
+    <button class="mode-btn active" id="modeAdult" onclick="setMode('adult')">Adult</button>
+    <button class="mode-btn" id="modePeds" onclick="setMode('peds')">Pediatric</button>
   </div>
 
   <div class="field" id="weightField" style="display:none;">
@@ -111,6 +111,19 @@
         <button class="unit-btn active" id="unitKg" onclick="setUnit('kg')">kg</button>
         <button class="unit-btn" id="unitLb" onclick="setUnit('lb')">lb</button>
       </div>
+    </div>
+  </div>
+
+  <div class="field" id="infusionFields" style="display:none;">
+    <label class="label" for="rateInput">Ordered dose (<span id="rateUnitLabel"></span>)</label>
+    <input type="number" inputmode="decimal" id="rateInput" step="any" oninput="render()" />
+    <label class="label" for="concSelect" style="margin-top:12px;">Bag concentration</label>
+    <select id="concSelect" onchange="onConcChange()"></select>
+    <div class="weight-row" id="customConc" style="display:none;margin-top:8px;">
+      <input type="number" inputmode="decimal" id="customAmount" step="any" placeholder="Amount" oninput="render()" aria-label="Drug amount in bag" />
+      <span class="conc-note" id="customAmountUnit" style="align-self:center;"></span>
+      <input type="number" inputmode="decimal" id="customVolume" step="any" placeholder="mL" oninput="render()" aria-label="Bag volume in mL" />
+      <span class="conc-note" style="align-self:center;">mL</span>
     </div>
   </div>
 
@@ -131,106 +144,8 @@
   <div class="vitals-wrap" id="vitalsWrap" style="display:none;"></div>
 </div>
 
-<script>
-const DRUGS = {
-  epi_arrest: { name: "Epinephrine — Cardiac Arrest", conc: "1:10,000 (0.1 mg/mL)", adultFixed: 1, adultUnit: "mg IV/IO push, q3–5min", pedsPerKg: 0.01, pedsMax: 1, pedsUnit: "mg IV/IO push, q3–5min",
-    note: "Follow each dose with a 20 mL flush and limb elevation. Confirm 1:10,000 concentration before drawing up — mixing this up with 1:1000 is a well-documented high-alert error." },
-  epi_anaphylaxis: { name: "Epinephrine — Anaphylaxis", conc: "1:1,000 (1 mg/mL)", adultFixed: 0.5, adultUnit: "mg IM, may repeat q5–15min", pedsPerKg: 0.01, pedsMax: 0.3, pedsUnit: "mg IM, may repeat q5–15min",
-    note: "IM into the vastus lateralis, not IV. This is the opposite concentration from cardiac-arrest dosing — double-check before drawing up." },
-  amiodarone: { name: "Amiodarone — Pulseless VT/VF", conc: "50 mg/mL", adultFixed: 300, adultUnit: "mg IV/IO push (first dose); 150 mg for repeat", pedsPerKg: 5, pedsMax: 300, pedsUnit: "mg/kg IV/IO push",
-    note: "Give after the 3rd defibrillation attempt in refractory VF/pulseless VT, per current ACLS/PALS sequencing." },
-  adenosine: { name: "Adenosine — SVT", conc: "3 mg/mL", adultFixed: 6, adultUnit: "mg rapid IV push (first dose); 12 mg for repeat", pedsPerKg: 0.1, pedsMax: 6, pedsUnit: "mg/kg rapid IV push (first dose)",
-    note: "Push through the most proximal IV access, immediately follow with a rapid saline flush. Warn the patient about a brief feeling of impending doom." },
-  atropine: { name: "Atropine — Symptomatic Bradycardia", conc: "0.1 mg/mL", adultFixed: 0.5, adultUnit: "mg IV, q3–5min, max total 3 mg", pedsPerKg: 0.02, pedsMax: 0.5, pedsUnit: "mg/kg IV (minimum single dose 0.1 mg)",
-    note: "Watch for paradoxical bradycardia at very low doses in pediatric patients — this is why there's a minimum dose floor." },
-  naloxone: { name: "Naloxone — Opioid Overdose", conc: "0.4 mg/mL (IV) or 4 mg/spray (IN)", adultFixed: 0.4, adultUnit: "mg IV/IM/IN, titrate to respirations, may repeat q2–3min", pedsPerKg: 0.1, pedsMax: 2, pedsUnit: "mg/kg IV/IM/IN",
-    note: "Titrate to adequate respiratory effort, not full consciousness, in opioid-dependent patients — over-reversal can precipitate acute withdrawal and combativeness." }
-};
-
-const VITALS_REF = [
-  { age: "Newborn", hr: "100–180", rr: "30–60", sbp: "60–90" },
-  { age: "Infant (1–12mo)", hr: "100–160", rr: "24–38", sbp: "70–100" },
-  { age: "Toddler (1–3yr)", hr: "90–150", rr: "22–30", sbp: "80–110" },
-  { age: "Child (3–12yr)", hr: "70–120", rr: "18–24", sbp: "90–120" },
-  { age: "Adolescent (12+)", hr: "60–100", rr: "12–20", sbp: "100–120" },
-  { age: "Adult", hr: "60–100", rr: "12–20", sbp: "90–120" }
-];
-
-let drugKey = "epi_arrest", mode = "adult", unit = "kg";
-
-function initSelect() {
-  const sel = document.getElementById('drugSelect');
-  Object.entries(DRUGS).forEach(([key, d]) => {
-    const opt = document.createElement('option');
-    opt.value = key; opt.textContent = d.name;
-    sel.appendChild(opt);
-  });
-  sel.value = drugKey;
-}
-
-function onDrugChange() {
-  drugKey = document.getElementById('drugSelect').value;
-  render();
-}
-
-function setMode(m) {
-  mode = m;
-  document.getElementById('modeAdult').classList.toggle('active', m === 'adult');
-  document.getElementById('modePeds').classList.toggle('active', m === 'peds');
-  document.getElementById('weightField').style.display = m === 'peds' ? 'block' : 'none';
-  render();
-}
-
-function setUnit(u) {
-  unit = u;
-  document.getElementById('unitKg').classList.toggle('active', u === 'kg');
-  document.getElementById('unitLb').classList.toggle('active', u === 'lb');
-  render();
-}
-
-function toggleVitals() {
-  const wrap = document.getElementById('vitalsWrap');
-  const chevron = document.getElementById('vitalsChevron');
-  const isOpen = wrap.style.display !== 'none';
-  wrap.style.display = isOpen ? 'none' : 'block';
-  chevron.classList.toggle('open', !isOpen);
-  if (!isOpen && wrap.innerHTML === '') {
-    let rows = '';
-    VITALS_REF.forEach(v => {
-      rows += `<tr><td>${v.age}</td><td class="num mono" style="color:#35D07F;">${v.hr}</td><td class="num mono" style="color:#2FB8C6;">${v.rr}</td><td class="num mono" style="color:#F2A93B;">${v.sbp}</td></tr>`;
-    });
-    wrap.innerHTML = `<table><thead><tr><th>Age</th><th class="num">HR</th><th class="num">RR</th><th class="num">SBP</th></tr></thead><tbody>${rows}</tbody></table>`;
-  }
-}
-
-function render() {
-  const drug = DRUGS[drugKey];
-  document.getElementById('concNote').textContent = 'Concentration: ' + drug.conc;
-  document.getElementById('noteBody').textContent = drug.note;
-
-  const body = document.getElementById('readoutBody');
-
-  if (mode === 'adult') {
-    body.innerHTML = `<div class="dose-big mono">${drug.adultFixed}<span class="dose-unit">mg</span></div><div class="dose-desc">${drug.adultUnit}</div>`;
-    return;
-  }
-
-  const raw = parseFloat(document.getElementById('weightInput').value);
-  if (isNaN(raw) || raw <= 0) {
-    body.innerHTML = `<div class="empty-state">Enter a patient weight to calculate.</div>`;
-    return;
-  }
-  const weightKg = unit === 'lb' ? raw / 2.20462 : raw;
-  let dose = +(drug.pedsPerKg * weightKg).toFixed(3);
-  const capped = dose > drug.pedsMax;
-  if (capped) dose = drug.pedsMax;
-
-  body.innerHTML = `<div class="dose-big mono">${dose}<span class="dose-unit">mg</span></div><div class="dose-desc">${drug.pedsUnit}</div>` +
-    (capped ? `<div class="cap-warning">⚠ Weight-based calc exceeded the max — capped at ${drug.pedsMax} mg</div>` : '');
-}
-
-initSelect();
-render();
-</script>
+<script src="js/dosing.js"></script>
+<script src="js/drugs.js"></script>
+<script src="js/calculator.js"></script>
 </body>
 </html>
