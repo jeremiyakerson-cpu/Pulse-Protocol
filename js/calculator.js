@@ -231,6 +231,7 @@
         drug.warnings.map(function (w) { return '<li style="margin-bottom:4px;">' + esc(w) + '</li>'; }).join('') + '</ul>';
     }
     if (drug.source) html += '<div style="margin-top:10px;font-size:11px;">Reference: ' + esc(drug.source) + '</div>';
+    if (drug.sourceNote) html += '<div style="margin-top:6px;font-size:11px;">Source check: ' + esc(drug.sourceNote) + '</div>';
     if (drug.review) html += '<div style="margin-top:6px;font-size:11px;color:#F2A93B;">⚑ Flagged for clinical review: ' + esc(drug.review) + '</div>';
     $('noteBody').innerHTML = html;
   }

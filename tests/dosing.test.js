@@ -302,11 +302,23 @@ test('sweep: every tiered spec has non-overlapping bands', () => {
     }
   }));
 });
-test('every drug has a source note; every review flag is a non-empty string', () => {
+test('every drug has a source; review flags and source notes are non-empty strings', () => {
   DRUGS.forEach(d => {
     assert.ok(d.source && d.source.length > 3, d.id);
     if ('review' in d) assert.ok(typeof d.review === 'string' && d.review.length > 10, d.id);
+    if ('sourceNote' in d) assert.ok(typeof d.sourceNote === 'string' && d.sourceNote.length > 20, d.id);
   });
 });
+test('every drug flagged in pass 1 carries a pass-2 source note', () => {
+  ['calcium_chloride', 'atropine', 'fentanyl', 'insulin_hyperk', 'dexamethasone_croup', 'txa', 'octreotide']
+    .forEach(id => assert.ok(byId(id).sourceNote, id));
+});
+test('dexamethasone croup 0.6 mg/kg capped at 12 mg (TREKK 2023)', () => {
+  assert.strictEqual(D.weightDose(byId('dexamethasone_croup').peds, 15).low, 9);
+  const r = D.weightDose(byId('dexamethasone_croup').peds, 30);
+  assert.strictEqual(r.low, 12); assert.ok(r.capped);
+});
+test('peds TXA 15 mg/kg capped at 1 g (RCPCH)', () => assert.strictEqual(D.weightDose(byId('txa').peds, 80).low, 1000));
+test('peds insulin hyperK 0.1 units/kg capped at 10 units', () => assert.strictEqual(D.weightDose(byId('insulin_hyperk').peds, 120).low, 10));
 
 console.log(`${passed} passed${process.exitCode ? ', some FAILED' : ''}`);

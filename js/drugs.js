@@ -9,6 +9,7 @@
  *   warnings                   — array of short safety warnings
  *   source                     — reference the numbers were checked against
  *   review                     — optional string: why a human should double-check this entry
+ *   sourceNote                 — optional string: what a specific source says, with URL (pass-2 citation check)
  *
  * Dose spec types:
  *   { type: 'fixed',  dose: n | [lo, hi], unit, desc, perMl? }
@@ -61,8 +62,9 @@
       adult: { type: 'fixed', dose: [120, 200], unit: 'J', desc: 'Biphasic, per manufacturer recommendation; if unknown use the maximum available. Subsequent shocks same or higher.' },
       peds: { type: 'weight', perKg: 2, unit: 'J', desc: 'First shock', extras: [{ label: 'Second shock (4 J/kg)', perKg: 4 }] },
       note: 'Pediatric subsequent shocks: ≥4 J/kg, maximum 10 J/kg or the standard adult dose. Resume CPR immediately after every shock.',
-      warnings: ['Unsynchronized. Clear everyone and remove oxygen from the chest before shocking.'],
-      source: 'AHA ACLS / PALS'
+      warnings: ['Unsynchronized. Clear everyone and remove oxygen from the chest before shocking.', 'Pediatric: this calculator does not cap the J/kg result — do not exceed 10 J/kg or the adult dose for your device.'],
+      source: 'AHA ACLS / PALS',
+      sourceNote: '2020 AHA Pediatric Cardiac Arrest algorithm: "First shock 2 J/kg • Second shock 4 J/kg • Subsequent shocks ≥4 J/kg, maximum 10 J/kg or adult dose". ILCOR 2025 review notes an initial 2–4 J/kg range (2 J/kg used in teaching). costr.ilcor.org'
     },
     {
       id: 'bicarb', name: 'Sodium Bicarbonate 8.4%', group: 'Cardiac arrest',
@@ -80,8 +82,9 @@
       peds: { type: 'weight', perKg: 20, max: 1000, unit: 'mg', perMl: 100, desc: 'IV/IO slow push (0.2 mL/kg)' },
       note: 'For hyperkalemia with ECG changes, hypocalcemia, hypermagnesemia, and calcium-channel blocker toxicity. Not routine in arrest.',
       warnings: ['Very irritating — use a central line or large, secure vein. Extravasation causes necrosis.', 'Calcium chloride has ~3× the elemental calcium of calcium gluconate — do not substitute mL for mL.'],
-      source: 'AHA PALS',
-      review: 'Pediatric maximum single dose: capped here at the adult 1 g dose; some references list a 2 g maximum.'
+      source: 'AHA PALS / Nationwide Children\'s hyperkalemia pathway / RCH Melbourne',
+      review: 'Pediatric maximum single dose: the PALS guideline text could not be checked for a stated maximum (the 2020 PALS algorithms give no calcium dose). The 1 g cap matches the pediatric sources below; no primary source for a 2 g maximum was found.',
+      sourceNote: 'Nationwide Children\'s hyperkalemia pathway (rev. 2/2026): "Calcium chloride (if central line) 20mg/kg/dose (MAX 1000mg)" — nationwidechildrens.org/-/media/nch/for-medical-professionals/clinical-pathways/ip-hyperkalemia.pdf · RCH Melbourne hyperkalaemia guideline: 0.2 mL/kg of 10%, max 10 mL (= 1 g) — rch.org.au/clinicalguide/guideline_index/hyperkalaemia/'
     },
 
     // ───────────── Arrhythmias / bradycardia ─────────────
@@ -101,8 +104,9 @@
       peds: { type: 'weight', perKg: 0.02, min: 0.1, max: 0.5, unit: 'mg', perMl: 0.1, desc: 'IV/IO, may repeat once (min 0.1 mg, max single dose 0.5 mg)' },
       note: 'In pediatric bradycardia, oxygenation/ventilation and epinephrine come first; atropine is for increased vagal tone or primary AV block.',
       warnings: ['Adult dose was updated from 0.5 mg to 1 mg in the 2020 AHA guidelines.', 'Unlikely to work in denervated (transplanted) hearts or high-degree infranodal block — prepare pacing.'],
-      source: 'AHA ACLS 2020 / PALS',
-      review: 'Pediatric 0.1 mg minimum dose — retained from the PALS card; confirm your institution still applies it.'
+      source: 'AHA ACLS 2020 / PALS 2020 bradycardia algorithm',
+      review: 'Pediatric 0.1 mg minimum is in the 2020 PALS bradycardia algorithm; the 2025 PALS algorithm could not be read first-hand to confirm it is unchanged. (The "no minimum dose" statement applies only to atropine as intubation premedication.)',
+      sourceNote: '2020 AHA Pediatric Bradycardia With a Pulse algorithm: "Atropine IV/IO dose: 0.02 mg/kg. May repeat once. Minimum dose 0.1 mg and maximum single dose 0.5 mg." The 2015 PALS update\'s "no minimum dose" recommendation is limited to premedication for emergency intubation.'
     },
     {
       id: 'amiodarone_vt_pulse', name: 'Amiodarone — Stable VT (with pulse)', group: 'Arrhythmia',
@@ -228,8 +232,9 @@
       peds: { type: 'weight', perKg: 1.5, max: 100, unit: 'mcg', perMl: 50, desc: 'Intranasal (split between nares)' },
       note: 'Short-acting opioid with minimal histamine release — preferred in hemodynamically tenuous patients.',
       warnings: ['Respiratory depression; rapid high doses can cause chest-wall rigidity. Keep naloxone available.'],
-      source: 'Common ED protocols',
-      review: 'Adult 0.5–1 mcg/kg with 100 mcg single-dose cap and pediatric IN 1.5 mcg/kg (max 100 mcg) reflect common ED protocols rather than a single guideline.'
+      source: 'Fentanyl prescribing information / RCH Melbourne intranasal fentanyl guideline',
+      review: 'Adult 0.5–1 mcg/kg IV: no primary source found for this exact range (the label gives 50–100 mcg IM for pain; SAEM teaching material cites 1–1.5 mcg/kg initially). Pediatric IN dose is sourced — see below.',
+      sourceNote: 'Pediatric IN — RCH Melbourne (updated Oct 2025): "1.5 microg/kg dose (max 100 microg)", second dose 0.75–1.5 microg/kg — rch.org.au/clinicalguide/guideline_index/intranasal_fentanyl/ · Adult cap — FDA label (Hospira, DailyMed): "50 to 100 mcg (0.05 to 0.1 mg) … intramuscularly for the control of pain."'
     },
 
     // ───────────── Pressors & cardiac drips ─────────────
@@ -486,8 +491,9 @@
       peds: null,
       note: 'Splanchnic vasoconstrictor for suspected variceal hemorrhage; give with antibiotic prophylaxis (e.g., ceftriaxone) in cirrhosis.',
       warnings: ['Hyper-/hypoglycemia, bradycardia.'],
-      source: 'AASLD portal hypertension guidance',
-      review: 'Bag concentration (500 mcg/100 mL) is an example mix only — varies by pharmacy.'
+      source: 'AASLD portal hypertension guidance (2016)',
+      review: 'Bag concentration (500 mcg/100 mL) is an example mix only — varies by pharmacy. The dose itself is sourced below.',
+      sourceNote: 'AASLD 2016 practice guidance (Garcia-Tsao et al., Hepatology 2017), Table 4: "Initial IV bolus of 50 micrograms (can be repeated in first hour if ongoing bleeding) / Continuous IV infusion of 50 μg/hr / 2-5 days".'
     },
     {
       id: 'dextrose', name: 'Dextrose — Hypoglycemia', group: 'Anticoag, GI & endocrine',
@@ -512,10 +518,10 @@
       conc: '100 units/mL',
       adult: { type: 'fixed', dose: 10, unit: 'units', desc: 'IV with dextrose 25 g (if glucose <250 mg/dL)' },
       peds: { type: 'weight', perKg: 0.1, max: 10, unit: 'units', desc: 'IV with dextrose 0.5 g/kg' },
-      note: 'Shifts K+ into cells within 15–30 min. Also give calcium if ECG changes; albuterol also shifts K+.',
+      note: 'Shifts K+ into cells within 15–30 min. Also give calcium if ECG changes; albuterol also shifts K+. Some pediatric pathways consider a 5-unit maximum in chronic kidney disease.',
       warnings: ['Hypoglycemia is common (especially in renal failure) — check glucose hourly for several hours.', 'Draw regular insulin with an insulin syringe; high-alert medication.'],
-      source: 'AHA ACLS (special circumstances) / KDIGO',
-      review: 'Pediatric 0.1 units/kg (max 10 units) with dextrose 0.5 g/kg — commonly cited but varies between pediatric protocols; some adult protocols use 5 units in renal failure.'
+      source: 'UK Kidney Association 2023 / Nationwide Children\'s hyperkalemia pathway / RCH Melbourne',
+      sourceNote: 'Adult — UK Kidney Association 2023, 16.3.1: "10 units soluble insulin in 25g glucose"; it favors 10 over 5 units and adds 10% glucose infusion if pre-treatment glucose <7 mmol/L rather than lowering insulin — guidelines.ukkidney.org/hyperkalaemia/ · Pediatric — Nationwide Children\'s: "0.1unit/kg/dose IV (MAX 10 units) … WITH Dextrose 0.5-1g/kg"; "Consider max dose of 5 units of insulin in children with chronic kidney disease." RCH Melbourne: 0.1 unit/kg (max 10 units) with glucose 10% 5 mL/kg.'
     },
 
     // ───────────── Neuro ─────────────
@@ -535,7 +541,8 @@
       peds: { type: 'tiered', unit: 'mg', desc: 'IM, single dose', tiers: [{ minKg: 13, maxKg: 40, dose: 5 }, { overKg: 40, dose: 10 }] },
       note: 'First-line when no IV access (RAMPART). Intranasal and buccal routes are alternatives.',
       warnings: ['No dose listed below 13 kg in this reference — use your pediatric protocol.'],
-      source: 'American Epilepsy Society 2016 / RAMPART'
+      source: 'American Epilepsy Society 2016 / RAMPART',
+      sourceNote: 'AES 2016 guideline (Glauser et al., Epilepsy Curr 2016): "Dosing was standardized to 10 mg (5 mg in children weighing 13–40 kg) IM midazolam" — 40 kg exactly is in the 5 mg band. pmc.ncbi.nlm.nih.gov/articles/PMC4749120/'
     },
     {
       id: 'levetiracetam', name: 'Levetiracetam — Status epilepticus', group: 'Neuro',
@@ -627,11 +634,11 @@
       id: 'dexamethasone_croup', name: 'Dexamethasone — Croup', group: 'Respiratory & allergy',
       conc: 'PO solution or 4 mg/mL / 10 mg/mL injection — verify',
       adult: null,
-      peds: { type: 'weight', perKg: 0.6, max: 16, unit: 'mg', desc: 'PO/IM/IV single dose' },
+      peds: { type: 'weight', perKg: 0.6, max: 12, unit: 'mg', desc: 'PO/IM/IV single dose (max 12 mg)' },
       note: 'Lower doses (0.15–0.3 mg/kg) are also effective for mild croup in several studies.',
       warnings: [],
-      source: 'Cochrane review / common pediatric ED protocols',
-      review: 'Maximum dose varies between references (10 mg vs 16 mg).'
+      source: 'TREKK croup bottom line recommendations 2023 / AAFP croup review',
+      sourceNote: 'Max changed 16 → 12 mg in pass 2. TREKK (Aug 2023, v4.0): "dexamethasone 0.15 to 0.6 mg/kg (MAX 12 mg/dose) PO" — cms.trekk.ca/wp-content/uploads/2023/11/2023-08-21_BLR_Croup_v4.0_FINAL.pdf · AAFP croup review: "0.6 mg/kg, maximum 12 mg". No primary source found for a 16 mg or 10 mg maximum.'
     },
     {
       id: 'racemic_epi', name: 'Racemic Epinephrine 2.25% — Croup', group: 'Respiratory & allergy',
@@ -741,8 +748,8 @@
       peds: { type: 'weight', perKg: 15, max: 1000, unit: 'mg', perMl: 100, desc: 'IV over 10 min, then 2 mg/kg/hr for 8 hr' },
       note: 'Give within 3 hr of injury (benefit falls, and harm may increase, after 3 hr).',
       warnings: ['Rapid IV push can cause hypotension. Seizure risk at high doses.'],
-      source: 'CRASH-2 / pediatric trauma consensus',
-      review: 'Pediatric 15 mg/kg (max 1 g) then 2 mg/kg/hr — from pediatric trauma consensus (e.g., RCPCH/PED-TRAX); regimens vary.'
+      source: 'CRASH-2 / RCPCH 2012 evidence statement',
+      sourceNote: 'Pediatric — RCPCH 2012 (quoted in PMC4095612): "15 mg/kg intravenously over 10 minutes (maximum dose 1 g)" then "2 mg/kg/hr intravenous infusion over 8 hours or until bleeding stops" — pmc.ncbi.nlm.nih.gov/articles/PMC4095612/'
     },
     {
       id: 'acetylcysteine', name: 'Acetylcysteine (IV) — Acetaminophen', group: 'Reversal & toxicology',
@@ -780,11 +787,12 @@
     {
       id: 'lipid_emulsion', name: 'Lipid Emulsion 20% — LAST', group: 'Reversal & toxicology',
       conc: '20% lipid emulsion',
-      adult: { type: 'weight', perKg: 1.5, max: 100, unit: 'mL', desc: 'IV bolus over 2–3 min (100 mL if >70 kg); then infusion 0.25 mL/kg/min' },
-      peds: { type: 'weight', perKg: 1.5, max: 100, unit: 'mL', desc: 'IV bolus over 2–3 min; then infusion 0.25 mL/kg/min' },
+      adult: { type: 'weight', perKg: 1.5, max: 100, unit: 'mL', desc: 'IV bolus over 2–3 min (~100 mL if >70 kg); then infuse ~250 mL over 15–20 min if >70 kg, or ~0.25 mL/kg/min if <70 kg' },
+      peds: { type: 'weight', perKg: 1.5, max: 100, unit: 'mL', desc: 'IV bolus over 2–3 min; then infusion ~0.25 mL/kg/min (consider a pump if <40 kg)' },
       note: 'For local anesthetic systemic toxicity. Continue CPR; use small epinephrine doses (≤1 mcg/kg).',
-      warnings: ['Upper limit ~12 mL/kg total lipid.', 'Avoid vasopressin, calcium-channel blockers, beta-blockers, and local anesthetics in LAST.'],
-      source: 'ASRA LAST checklist'
+      warnings: ['Maximum lipid dose 12 mL/kg. If still unstable: repeat bolus and double the infusion. Continue ≥15 min after hemodynamic stability.', 'Avoid vasopressin, calcium-channel blockers, beta-blockers, and local anesthetics in LAST.'],
+      source: 'ASRA LAST checklist (2020, v1.1)',
+      sourceNote: 'ASRA 2020 checklist: >70 kg "Bolus ~100 mL over 2-3 min • Infuse ~250 mL over 15-20 min"; <70 kg "Bolus ~1.5 mL/kg over 2-3 min • Infuse ~0.25 mL/kg/min"; "Maximum lipid dose: 12 mL/kg". The checklist does not assign exactly 70 kg to either band. asra.com/docs/default-source/guidelines-articles/local-anesthetic-systemic-toxicity-rgb.pdf'
     },
     {
       id: 'bicarb_tca', name: 'Sodium Bicarbonate — TCA toxicity (QRS >100 ms)', group: 'Reversal & toxicology',
