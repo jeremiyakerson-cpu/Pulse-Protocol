@@ -219,6 +219,9 @@ html.is-offline .offline-badge { display: inline-block; }
 :root[data-theme="light"] [style*="background:#0E1A24" i] { background: var(--bg) !important; }
 :root[data-theme="light"] [style*="background:#142430" i] { background: var(--surface) !important; }
 :root[data-theme="light"] [style*="solid #22384A" i] { border-color: var(--border) !important; }
+/* Category chips take their colour from quiz data, and pale colours can't carry
+   text on a light background: keep the tinted fill/border, use body text. */
+:root[data-theme="light"] .cat-badge { color: var(--text) !important; }
 
 /* ---------- Accessibility ---------- */
 .visually-hidden {
