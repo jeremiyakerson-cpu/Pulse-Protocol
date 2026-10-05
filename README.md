@@ -7,7 +7,7 @@ ER nurse, with free study tools that install to your phone and work offline.
 | --- | --- |
 | `index.html` | Landing page: the two tools, offline/install, about the author, shop and newsletter links |
 | `calculator.html` | **ER Dosing Reference**: adult fixed-dose and pediatric weight-based dosing for common resuscitation drugs, plus a vitals reference table |
-| `quiz.html` | **ER Study Monitor**: a case-based ER quiz with score, streak and a per-category breakdown |
+| `quiz.html` | **ER Study Monitor**: a case-based ER quiz with study, timed-exam and adaptive (spaced-repetition, SM-2) modes, confidence ratings, a progress view with mastery by category and a daily plan, and progress export/import |
 
 > **Educational use only.** Nothing here is for real-time clinical dosing decisions. Always confirm
 > against your facility's current protocols and pharmacy references.
