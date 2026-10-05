@@ -3,7 +3,7 @@
    the new copies and old caches are cleaned up. The GitHub Pages workflow
    stamps it with the commit SHA on every deploy, so a manual bump only
    matters for other hosts. */
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `pulse-protocol-${CACHE_VERSION}`;
 
 // Paths are relative to the service worker, so the app works from a sub-path
@@ -20,6 +20,12 @@ const PRECACHE = [
   'css/quiz.css',
   'js/theme.js',
   'js/pwa.js',
+  'js/dosing.js',
+  'js/drugs.js',
+  'js/calculator.js',
+  'js/questions.js',
+  'js/quizstore.js',
+  'js/quiz.js',
   'manifest.webmanifest',
   'icons/icon.svg',
   'icons/icon-192.png',
@@ -30,15 +36,7 @@ const PRECACHE = [
 ];
 
 // Cached when present, skipped (without failing the install) when missing.
-// These are the calculator/quiz data and logic files from the content PR
-// (claude/pulse-content); once that is on main, move them into PRECACHE.
-const PRECACHE_OPTIONAL = [
-  'js/dosing.js',
-  'js/drugs.js',
-  'js/calculator.js',
-  'js/questions.js',
-  'js/quiz.js'
-];
+const PRECACHE_OPTIONAL = [];
 
 // Offline-ish connections ("lie-fi") can hang for a long time. After this long,
 // a page that is already cached is served from the cache instead.
