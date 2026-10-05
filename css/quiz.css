@@ -1,0 +1,58 @@
+/* ER Study Monitor (quiz.html) */
+.card {
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+.monitor {
+  margin-bottom: 20px;
+  box-shadow: 0 0 30px -15px rgba(var(--green-rgb),0.4);
+}
+.row { display: flex; align-items: center; justify-content: space-between; }
+.eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.score-big { font-size: 36px; font-weight: 700; color: var(--green); line-height: 1; }
+.score-sub { font-size: 16px; color: var(--text-muted); }
+.label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+.streak-big { font-size: 24px; font-weight: 700; color: var(--amber); line-height: 1; }
+.bar-bg { margin-top: 12px; height: 6px; border-radius: 4px; background: var(--bg); overflow: hidden; }
+.bar-fg { height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width .4s ease; }
+.cat-badge {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  padding: 4px 10px; border-radius: var(--radius-pill); display: inline-block;
+}
+.qtext { font-size: 15px; line-height: 1.5; margin: 16px 0; }
+.opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  text-align: left; width: 100%; min-height: var(--tap); padding: 12px 14px; border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  font-size: 14px; margin-bottom: 10px; transition: all .15s ease;
+}
+.opt:not(:disabled):hover { border-color: var(--teal); }
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--green); background: rgba(var(--green-rgb),0.1); }
+.opt.wrong { border-color: var(--red); background: rgba(var(--red-rgb),0.1); }
+.opt.dim { opacity: 0.45; }
+.explain {
+  margin-top: 14px; border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); padding: 14px;
+}
+.explain-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); margin-bottom: 6px; }
+.explain-body { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.btn-primary {
+  margin-top: 14px; width: 100%; min-height: var(--tap); padding: 14px; border-radius: var(--radius); border: none;
+  background: var(--green); color: var(--bg); font-weight: 700; font-size: 14px;
+}
+.btn-secondary {
+  width: 100%; min-height: var(--tap); padding: 14px; border-radius: var(--radius); background: transparent;
+  border: 1px solid var(--border); color: var(--text); font-weight: 700; font-size: 14px;
+}
+.result-pct { text-align: center; font-size: 44px; font-weight: 700; color: var(--green); }
+.result-sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 4px; margin-bottom: 20px; }
+.cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cat-name { width: 96px; flex-shrink: 0; font-size: 12px; color: var(--text-muted); }
+.cat-bar-bg { flex: 1; height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; }
+.cat-bar-fg { height: 100%; border-radius: 4px; }
+.cat-frac { width: 36px; text-align: right; font-size: 12px; color: var(--text-muted); }

@@ -1,0 +1,135 @@
+/* Landing page (index.html) */
+:root { --shell-w: 440px; --shell-pad: 20px; }
+.home { max-width: calc(var(--shell-w) + 2 * var(--shell-pad)); margin: 0 auto; padding: 40px var(--shell-pad) 60px; }
+
+/* Hero */
+.hero { text-align: center; margin-bottom: 36px; }
+.eyebrow { display: flex; align-items: center; gap: 6px; justify-content: center; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+.brand { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 8px; }
+.brand span { color: var(--green); }
+.tagline { color: var(--text-muted); font-size: 14px; margin: 0 0 22px; line-height: 1.5; }
+.hero-actions { display: flex; gap: 10px; justify-content: center; }
+.hero-actions .btn { flex: 1; max-width: 200px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--tap); padding: 0 16px; border-radius: 10px;
+  font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent;
+}
+.btn-primary { background: var(--green); color: var(--bg); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--teal); }
+.btn-block { display: flex; width: 100%; }
+
+.divider { height: 1px; background: var(--border); margin: 32px 0; }
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); font-weight: 700; margin: 0 0 12px; }
+
+/* Tool sections */
+.tool-grid { display: grid; gap: 14px; }
+.tool-card {
+  --accent-rgb: var(--teal-rgb);
+  border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border);
+  border-top: 3px solid rgba(var(--accent-rgb), 0.8);
+  padding: 18px; scroll-margin-top: calc(var(--nav-h) + 12px);
+  display: flex; flex-direction: column;
+}
+.tool-quiz { --accent-rgb: var(--green-rgb); }
+.tool-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.tool-card .link-icon { background: rgba(var(--accent-rgb), 0.15); border: 1px solid rgba(var(--accent-rgb), 0.4); }
+.tool-title { font-size: 16px; font-weight: 800; margin: 0; }
+.tool-desc { font-size: 13.5px; line-height: 1.55; color: var(--text-soft); margin: 0 0 12px; }
+.tool-points { list-style: none; padding: 0; margin: 0 0 16px; flex: 1; }
+.tool-points li { position: relative; padding-left: 18px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); margin-bottom: 6px; }
+.tool-points li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--accent-rgb)); }
+.tool-note { font-size: 11px; color: var(--text-faint); margin: 10px 0 0; text-align: center; }
+
+/* Offline / install */
+.offline-card {
+  display: flex; align-items: center; gap: 14px; margin-top: 14px;
+  border-radius: var(--radius-lg); border: 1px dashed var(--border); padding: 14px 16px;
+}
+.offline-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+.offline-sub { font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+.offline-card .btn { flex-shrink: 0; }
+
+/* About */
+.about { scroll-margin-top: calc(var(--nav-h) + 12px); }
+.about-card { border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); padding: 18px; }
+.about-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.about-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; color: var(--green);
+  background: rgba(var(--green-rgb), 0.12); border: 1px solid rgba(var(--green-rgb), 0.4);
+}
+.about-name { font-size: 14px; font-weight: 700; }
+.about-text { font-size: 13.5px; line-height: 1.6; color: var(--text-soft); margin: 0; }
+.credentials { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 12px 0 0; }
+.credential { font-size: 11px; color: var(--green); background: rgba(var(--green-rgb),0.1); border: 1px solid rgba(var(--green-rgb),0.3); padding: 4px 10px; border-radius: var(--radius-pill); }
+.about-points { list-style: none; padding: 14px 0 0; margin: 14px 0 0; border-top: 1px solid var(--border); }
+.about-points li { font-size: 12.5px; line-height: 1.5; color: var(--text-muted); margin-bottom: 6px; }
+.about-points li:last-child { margin-bottom: 0; }
+.about-points strong { color: var(--text); font-weight: 700; }
+
+/* Link cards (shop, social) */
+.link-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-radius: 14px; background: var(--surface); border: 1px solid var(--border); padding: 16px 18px;
+  margin-bottom: 10px; text-decoration: none; color: var(--text); transition: border-color .15s ease;
+}
+.link-card:hover, .link-card:active { border-color: var(--teal); }
+.link-left { display: flex; align-items: center; gap: 12px; }
+.link-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.icon-amber { background: rgba(var(--amber-rgb),0.15); border: 1px solid rgba(var(--amber-rgb),0.4); }
+.icon-red { background: rgba(var(--red-rgb),0.15); border: 1px solid rgba(var(--red-rgb),0.4); }
+.link-title { font-size: 14px; font-weight: 700; }
+.link-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.arrow { color: var(--text-muted); font-size: 16px; }
+.product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.product-card { border-radius: 14px; background: var(--surface); border: 1px solid var(--border); padding: 14px; text-decoration: none; color: var(--text); transition: border-color .15s ease; }
+.product-card:hover, .product-card:active { border-color: var(--teal); }
+.product-icon { font-size: 20px; margin-bottom: 8px; }
+.product-name { font-size: 12.5px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+.product-price { font-size: 11px; color: var(--green); font-weight: 700; }
+
+/* Newsletter */
+.email-card {
+  border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--surface), var(--bg)); border: 1px solid var(--teal);
+  padding: 20px; text-align: center; box-shadow: 0 0 30px -15px rgba(var(--teal-rgb),0.4);
+}
+.email-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.email-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5; }
+.email-input { width: 100%; min-height: var(--tap); background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--text); margin-bottom: 10px; }
+.email-input::placeholder { color: var(--text-faint); }
+.email-input:focus { border-color: var(--teal); }
+.email-btn { width: 100%; min-height: var(--tap); padding: 12px; border-radius: 10px; border: none; background: var(--green); color: var(--bg); font-weight: 700; font-size: 13px; }
+.email-note { font-size: 10.5px; color: var(--text-faint); margin-top: 8px; }
+.footer { text-align: center; margin-top: 40px; font-size: 10.5px; color: var(--text-faint); line-height: 1.6; }
+.footer a { color: var(--text-muted); }
+
+/* iOS zooms into inputs with font-size < 16px */
+@media (max-width: 480px) and (pointer: coarse) {
+  .email-input { font-size: 16px; }
+}
+
+/* The iOS hint only makes sense where there is no install prompt */
+.ios-hint { display: none; }
+@supports (-webkit-touch-callout: none) { .ios-hint { display: inline; } }
+
+@media (max-width: 340px) {
+  .product-grid { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { max-width: none; }
+  .offline-card { flex-direction: column; align-items: stretch; }
+}
+
+/* Desktop: widen the column, put the two tools side by side */
+@media (min-width: 800px) {
+  :root { --shell-w: 760px; }
+  .home { padding-top: 56px; }
+  .brand { font-size: 40px; }
+  .tool-grid { grid-template-columns: 1fr 1fr; }
+  .product-grid { grid-template-columns: repeat(4, 1fr); }
+  .email-card { max-width: 480px; margin: 0 auto; }
+}

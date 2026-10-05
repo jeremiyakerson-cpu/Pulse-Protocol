@@ -1,0 +1,24 @@
+{
+  "name": "Pulse & Protocol — ER Nursing Tools",
+  "short_name": "Pulse",
+  "description": "ER-tested nursing education: a weight-based dosing reference and a case-based ER study quiz. Works offline.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1A24",
+  "theme_color": "#0E1A24",
+  "lang": "en",
+  "categories": ["education", "medical"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "ER Dosing Reference", "short_name": "Dosing", "url": "./calculator.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "ER Study Quiz", "short_name": "Quiz", "url": "./quiz.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
