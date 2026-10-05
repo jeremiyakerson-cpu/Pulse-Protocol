@@ -3,7 +3,7 @@
    the new copies and old caches are cleaned up. The GitHub Pages workflow
    stamps it with the commit SHA on every deploy, so a manual bump only
    matters for other hosts. */
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `pulse-protocol-${CACHE_VERSION}`;
 
 // Paths are relative to the service worker, so the app works from a sub-path
@@ -22,6 +22,8 @@ const PRECACHE = [
   'js/pwa.js',
   'js/dosing.js',
   'js/drugs.js',
+  'js/content.js',
+  'js/calcprefs.js',
   'js/calculator.js',
   'js/questions.js',
   'js/quizstore.js',
@@ -46,6 +48,11 @@ const NAV_TIMEOUT_MS = 4000;
 // stale files.
 const fresh = url => new Request(url, { cache: 'reload' });
 
+// The first install activates straight away so the app works offline after
+// one visit. An update instead waits until the page asks for it (the "New
+// version available — Reload" banner in js/pwa.js posts SKIP_WAITING), so an
+// open page is never switched to new files mid-use. If nobody clicks, it
+// activates on its own once every tab of the app has been closed.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -53,8 +60,12 @@ self.addEventListener('install', event => {
         cache.addAll(PRECACHE.map(fresh)),
         ...PRECACHE_OPTIONAL.map(url => cache.add(fresh(url)).catch(() => {}))
       ]))
-      .then(() => self.skipWaiting())
+      .then(() => { if (!self.registration.active) return self.skipWaiting(); })
   );
+});
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {

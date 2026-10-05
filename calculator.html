@@ -49,44 +49,77 @@
     <p><strong>Reference only — verify every dose with pharmacy and your facility's protocol.</strong> For education and review only. Not for real-time clinical dosing decisions; doses, concentrations and maximums vary by institution and change with guideline updates.</p>
   </div>
 
-  <div class="field">
-    <label class="label" for="drugSelect">Medication</label>
-    <select id="drugSelect" onchange="onDrugChange()"></select>
-    <div class="conc-note" id="concNote"></div>
+  <div class="field search-field">
+    <label class="label" for="drugSearch">Find a medication</label>
+    <input type="search" id="drugSearch" placeholder="Search — e.g. epi, ketamine, TXA" autocomplete="off" spellcheck="false"
+      role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchResults" />
+    <ul class="search-results" id="searchResults" role="listbox" aria-label="Matching medications" hidden></ul>
   </div>
 
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="modeAdult" onclick="setMode('adult')">Adult</button>
-    <button class="mode-btn" id="modePeds" onclick="setMode('peds')">Pediatric</button>
-  </div>
-
-  <div class="field" id="weightField" style="display:none;">
-    <label class="label">Patient weight</label>
-    <div class="weight-row">
-      <input type="number" inputmode="decimal" id="weightInput" placeholder="0.0" oninput="render()" />
-      <div class="unit-toggle">
-        <button class="unit-btn active" id="unitKg" onclick="setUnit('kg')">kg</button>
-        <button class="unit-btn" id="unitLb" onclick="setUnit('lb')">lb</button>
-      </div>
+  <div class="chip-rows" id="chipRows">
+    <div class="chip-row" id="favRow" hidden>
+      <span class="chip-label" id="favLabel">★ Favorites</span>
+      <div class="chips" id="favChips" role="group" aria-labelledby="favLabel"></div>
+    </div>
+    <div class="chip-row" id="recentRow" hidden>
+      <span class="chip-label" id="recentLabel">Recent</span>
+      <div class="chips" id="recentChips" role="group" aria-labelledby="recentLabel"></div>
     </div>
   </div>
 
-  <div class="field" id="infusionFields" style="display:none;">
+  <div class="field">
+    <label class="label" for="drugSelect">Medication</label>
+    <div class="select-row">
+      <select id="drugSelect"></select>
+      <button type="button" class="fav-btn" id="favBtn" aria-pressed="false" aria-label="Add to favorites" title="Add to favorites">☆</button>
+    </div>
+    <div class="conc-note" id="concNote"></div>
+  </div>
+
+  <div class="mode-toggle" role="group" aria-label="Patient population">
+    <button type="button" class="mode-btn active" id="modeAdult" aria-pressed="true">Adult</button>
+    <button type="button" class="mode-btn" id="modePeds" aria-pressed="false">Pediatric</button>
+  </div>
+
+  <div class="field" id="weightField" hidden>
+    <div class="patient-check" id="patientCheck" role="alertdialog" aria-labelledby="patientCheckTitle" aria-describedby="patientCheckText" hidden>
+      <div class="patient-check-title" id="patientCheckTitle">Is this still the same patient?</div>
+      <p class="patient-check-text" id="patientCheckText"></p>
+      <div class="patient-check-actions">
+        <button type="button" class="btn btn-primary" id="samePatientBtn">Same patient</button>
+        <button type="button" class="btn btn-secondary" id="newPatientBtn">New patient — clear</button>
+      </div>
+    </div>
+    <label class="label" for="weightInput">Patient weight</label>
+    <div class="weight-row">
+      <input type="text" inputmode="decimal" id="weightInput" placeholder="0.0" autocomplete="off" aria-describedby="weightStatus weightMsg" />
+      <div class="unit-toggle" role="group" aria-label="Weight unit">
+        <button type="button" class="unit-btn active" id="unitKg" aria-pressed="true">kg</button>
+        <button type="button" class="unit-btn" id="unitLb" aria-pressed="false">lb</button>
+      </div>
+      <button type="button" class="clear-btn" id="clearWeightBtn" aria-label="Clear patient weight" hidden>Clear</button>
+    </div>
+    <div class="weight-status" id="weightStatus"></div>
+    <div class="weight-msg" id="weightMsg" aria-live="polite"></div>
+  </div>
+
+  <div class="field" id="infusionFields" hidden>
     <label class="label" for="rateInput">Ordered dose (<span id="rateUnitLabel"></span>)</label>
-    <input type="number" inputmode="decimal" id="rateInput" step="any" oninput="render()" />
-    <label class="label" for="concSelect" style="margin-top:12px;">Bag concentration</label>
-    <select id="concSelect" onchange="onConcChange()"></select>
-    <div class="weight-row" id="customConc" style="display:none;margin-top:8px;">
-      <input type="number" inputmode="decimal" id="customAmount" step="any" placeholder="Amount" oninput="render()" aria-label="Drug amount in bag" />
-      <span class="conc-note" id="customAmountUnit" style="align-self:center;"></span>
-      <input type="number" inputmode="decimal" id="customVolume" step="any" placeholder="mL" oninput="render()" aria-label="Bag volume in mL" />
-      <span class="conc-note" style="align-self:center;">mL</span>
+    <input type="text" inputmode="decimal" id="rateInput" autocomplete="off" />
+    <label class="label label-gap" for="concSelect">Bag concentration</label>
+    <select id="concSelect"></select>
+    <div class="weight-row custom-conc" id="customConc" hidden>
+      <input type="text" inputmode="decimal" id="customAmount" placeholder="Amount" autocomplete="off" aria-label="Drug amount in bag" />
+      <span class="conc-note unit-suffix" id="customAmountUnit"></span>
+      <input type="text" inputmode="decimal" id="customVolume" placeholder="mL" autocomplete="off" aria-label="Bag volume in mL" />
+      <span class="conc-note unit-suffix">mL</span>
     </div>
   </div>
 
   <div class="readout">
     <div class="label">Calculated dose</div>
     <div id="readoutBody"></div>
+    <p class="verify-strip"><strong>Verify before giving:</strong> check every dose with pharmacy and your facility&rsquo;s protocol.</p>
   </div>
 
   <div class="note-box">
@@ -94,15 +127,19 @@
     <div class="note-body" id="noteBody"></div>
   </div>
 
-  <button class="vitals-toggle" onclick="toggleVitals()">
+  <button type="button" class="vitals-toggle" id="vitalsToggle" aria-expanded="false" aria-controls="vitalsWrap">
     <span>Pediatric &amp; adult vitals reference</span>
     <span class="chevron" id="vitalsChevron">▾</span>
   </button>
-  <div class="vitals-wrap" id="vitalsWrap" style="display:none;"></div>
+  <div class="vitals-wrap" id="vitalsWrap" hidden></div>
+
+  <footer class="content-stamp" id="contentStamp" aria-label="Content version"></footer>
 </div>
 
 <script src="js/dosing.js"></script>
 <script src="js/drugs.js"></script>
+<script src="js/content.js"></script>
+<script src="js/calcprefs.js"></script>
 <script src="js/calculator.js"></script>
 </body>
 </html>

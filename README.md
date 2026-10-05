@@ -16,14 +16,19 @@ ER nurse, with free study tools that install to your phone and work offline.
 
 ```
 index.html              landing page
-calculator.html         dosing reference (logic + data inline)
+calculator.html         dosing reference (search, favorites, recents, remembered weight)
 quiz.html               study quiz (logic + questions inline)
 css/pulse.css           shared design system: tokens, base, nav, accessibility helpers
 css/home.css            landing-page styles
 css/calculator.css      calculator styles
 css/quiz.css            quiz styles
 js/theme.js             light/dark theme (system preference + saved choice), nav toggle
-js/pwa.js               service worker registration, update notice, install button, "Offline" badge
+js/pwa.js               service worker registration, "new version — Reload" banner, install button, "Offline" badge
+js/dosing.js            dose math + weight/unit validation (pure, unit-tested)
+js/drugs.js             drug reference data
+js/calcprefs.js         calculator memory (favorites, recents, kg/lb, remembered patient) + search
+js/content.js           content stamp: content version, data-updated date, clinical review status
+tests/                  node --test tests/*.test.js
 sw.js                   service worker (offline precache)
 manifest.webmanifest    PWA manifest (name, colours, icons, shortcuts)
 icons/                  app icons (SVG sources + generated PNGs)
@@ -84,7 +89,7 @@ Then open http://localhost:8000.
 
 `.github/workflows/pages.yml` publishes the site on every push to `main` (and on demand from the
 Actions tab via *Run workflow*). It copies only the site files into the artifact (no `.github`,
-tests or docs), stamps `CACHE_VERSION` in `sw.js` with the commit SHA so visitors' offline copy
+tests or docs), runs the test suite first (a failing test blocks the deploy), stamps `CACHE_VERSION` in `sw.js` with the commit SHA so visitors' offline copy
 refreshes on every deploy, and fails the deploy if a file in the service worker's `PRECACHE` list
 is missing.
 
@@ -117,9 +122,12 @@ app to install and work offline. These hosts don't stamp the cache version, so b
 - If the network hangs for more than 4 seconds on a page that's already cached, the cached copy is
   shown instead, so a dead-zone connection doesn't leave you on a blank screen.
 - On first install a short "Saved for offline use" notice appears. When a new version is deployed,
-  it installs in the background and a **"A new version is ready — Reload"** notice appears (the
-  page doesn't reload by itself, so a quiz in progress isn't lost). An app left open all shift
-  checks for updates when it comes back to the foreground, at most once an hour.
+  it installs in the background and **waits**; a **"New version available — Reload"** banner
+  appears under the nav on every page. Reload switches to the new version; *Later* hides the
+  banner for that page view (the page never reloads by itself, so a quiz or calculation in
+  progress isn't lost). If nobody clicks Reload, the update applies once every app tab is closed.
+  An app left open all shift checks for updates when it comes back to the foreground or back
+  online, at most once an hour.
 - **Install:** on Android/desktop Chrome and Edge, the landing page shows an **Install app**
   button (browser menu → *Install app* also works). On iOS Safari, use
   *Share → Add to Home Screen*. The landing page shows that hint on iOS.
@@ -131,13 +139,40 @@ When you change or add any precached file:
 1. Add new files to the `PRECACHE` list in `sw.js`. Every file there must exist: one 404 fails the
    install and turns offline mode off. `node .github/scripts/check-precache.js` checks this, and
    the Pages workflow runs it before deploying. Files listed in `PRECACHE_OPTIONAL` are cached if
-   present and skipped if not. They're the calculator/quiz `js/` files from the content PR, and
-   they should move into `PRECACHE` once that PR is on `main`.
+   present and skipped if not. `tests/content.test.js` also fails if a page loads a `js/` or `css/`
+   file that isn't precached.
 2. On GitHub Pages, that's it: the workflow stamps a new `CACHE_VERSION`. On other hosts, bump
    `CACHE_VERSION` in `sw.js` (for example `'v2'` → `'v3'`).
 
-The new service worker installs, deletes old `pulse-protocol-*` caches, takes over open pages
-and shows the reload notice.
+The new service worker installs, waits, and shows the reload banner; once it takes over it deletes
+old `pulse-protocol-*` caches.
+
+### Updating drug content
+
+`js/content.js` holds the content stamp shown under the calculator and in the home-page footer:
+`CONTENT_VERSION`, `DATA_UPDATED` and `REVIEW` (clinical sign-off status). `tests/content.test.js`
+fingerprints `js/drugs.js`, so any change to drug data fails the tests until you update
+`DATA_UPDATED`, `DATA_FINGERPRINT` (the test prints the new value) and `CONTENT_VERSION`, and
+reset `REVIEW` to pending unless the change was clinically signed off. Each drug's "Guideline year"
+is read from the years written in its own `source` text; when none is written the calculator says
+the year isn't recorded rather than guessing.
+
+## Dosing calculator: memory and safety
+
+- **Search** (word starts across name, group and abbreviation: `epi ana`, `txa`), **favorites**
+  (☆ next to the drug) and **recent** drugs (last 5) are stored on the device only. The last drug
+  used opens next time.
+- **Remembered weight:** the weight (as typed, with its kg/lb unit and adult/peds mode) is kept on
+  the device. A **Clear** button sits next to it. After 15 minutes without use the calculator hides
+  doses and asks **"Is this still the same patient?"** (*Same patient* / *New patient — clear*);
+  after 12 hours the weight is discarded.
+- **kg/lb:** the toggle says which unit the typed number is in, and the line under the field shows
+  the conversion so a misread unit is visible. The choice is remembered.
+- **Validation:** non-numbers, zero/negatives and weights outside 0.4–350 kg show an error and no
+  dose. Peds >100 kg, adult <30 kg and adult >150 kg (kg mode) ask for a kg/lb re-check. Drip
+  orders 10× outside the reference range and custom bags 10× off the standard bags raise a
+  "possible unit mismatch" alert. Max-dose caps show a red alert with the uncapped calculation.
+- A **"Verify before giving"** strip is part of every readout and can't be dismissed.
 
 ## Disclaimer
 
