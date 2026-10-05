@@ -3,7 +3,7 @@
    the new copies and old caches are cleaned up. The GitHub Pages workflow
    stamps it with the commit SHA on every deploy, so a manual bump only
    matters for other hosts. */
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `pulse-protocol-${CACHE_VERSION}`;
 
 // Paths are relative to the service worker, so the app works from a sub-path
@@ -24,6 +24,7 @@ const PRECACHE = [
   'js/drugs.js',
   'js/calculator.js',
   'js/questions.js',
+  'js/srs.js',
   'js/quizstore.js',
   'js/quiz.js',
   'manifest.webmanifest',
