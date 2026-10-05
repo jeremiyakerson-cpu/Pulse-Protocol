@@ -45,6 +45,75 @@
     return out;
   }
 
+  function kgToLb(kg) {
+    var v = Number(kg);
+    return isFinite(v) ? v * LB_PER_KG : NaN;
+  }
+
+  // Above this (in kg mode) a weight is still plausible, but often a pound value typed with kg selected.
+  var LIKELY_LB_KG = 150;
+
+  /*
+   * Validates a raw weight entry (the input's string value) in the selected unit.
+   * Returns { status, kg, message, warnings }:
+   *   'empty'       — nothing entered (no message)
+   *   'invalid'     — not a number, zero or negative: no dose may be shown
+   *   'implausible' — outside WEIGHT_LIMITS.minKg–maxKg: no dose may be shown
+   *   'ok'          — kg is usable; warnings are re-check prompts that never change a dose
+   */
+  function validateWeight(raw, unit, mode) {
+    var text = raw == null ? '' : String(raw).trim();
+    if (text === '') return { status: 'empty', kg: NaN, message: '', warnings: [] };
+    var v = Number(text);
+    if (!isFinite(v)) {
+      return {
+        status: 'invalid', kg: NaN, warnings: [],
+        message: /^[\d\s]*,[\d\s]*$/.test(text) ? 'Use a decimal point, not a comma (e.g. 12.5).' : 'Weight must be a number.'
+      };
+    }
+    if (v <= 0) return { status: 'invalid', kg: NaN, message: 'Weight must be greater than 0.', warnings: [] };
+    var kg = toKg(v, unit);
+    if (kg < WEIGHT_LIMITS.minKg || kg > WEIGHT_LIMITS.maxKg) {
+      return {
+        status: 'implausible', kg: kg, warnings: [],
+        message: roundDose(v) + ' ' + (unit === 'lb' ? 'lb' : 'kg') + ' (' + roundDose(kg) + ' kg) is outside ' +
+          WEIGHT_LIMITS.minKg + '–' + WEIGHT_LIMITS.maxKg + ' kg — check the number and the kg/lb setting. No dose is shown.'
+      };
+    }
+    var warnings = weightWarnings(kg, mode);
+    if (unit !== 'lb' && mode === 'adult' && kg > LIKELY_LB_KG) {
+      warnings.push('Over ' + LIKELY_LB_KG + ' kg — confirm this weight is in kg, not lb.');
+    }
+    return { status: 'ok', kg: kg, message: '', warnings: warnings };
+  }
+
+  /*
+   * Unit-mismatch guard for an ordered infusion dose against the drug's reference range.
+   * 'mismatch' (≥10× the top or ≤1/10 of a non-zero bottom of the range) usually means mcg↔mg,
+   * per-min↔per-hr or per-kg confusion; 'outside' is any other out-of-range order.
+   */
+  var MISMATCH_FACTOR = 10;
+  function checkOrderedDose(dose, range) {
+    if (!(dose >= 0) || !isFinite(dose)) return 'invalid';
+    var lo = range[0], hi = range[1];
+    if ((hi > 0 && dose >= hi * MISMATCH_FACTOR) || (lo > 0 && dose > 0 && dose <= lo / MISMATCH_FACTOR)) return 'mismatch';
+    if (dose < lo || dose > hi) return 'outside';
+    return 'ok';
+  }
+
+  /*
+   * Unit-mismatch guard for a custom bag: compares its concentration with the preset bags'.
+   * Returns true when it is ≥10× stronger or weaker than every preset (e.g. 4000 typed as mg instead of mcg).
+   */
+  function customConcMismatch(conc, presets, asUnit) {
+    var c = concPerMl(conc, asUnit);
+    if (!(c > 0)) return false;
+    var vals = presets.map(function (p) { return concPerMl(p, asUnit); }).filter(function (x) { return x > 0; });
+    if (!vals.length) return false;
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    return c >= hi * MISMATCH_FACTOR || c <= lo / MISMATCH_FACTOR;
+  }
+
   function clamp(x, min, max) {
     var out = x, capped = false, floored = false;
     if (max != null && out > max) { out = max; capped = true; }
@@ -146,6 +215,11 @@
   var api = {
     LB_PER_KG: LB_PER_KG,
     toKg: toKg,
+    kgToLb: kgToLb,
+    validateWeight: validateWeight,
+    checkOrderedDose: checkOrderedDose,
+    customConcMismatch: customConcMismatch,
+    LIKELY_LB_KG: LIKELY_LB_KG,
     roundDose: roundDose,
     weightDose: weightDose,
     weightWarnings: weightWarnings,

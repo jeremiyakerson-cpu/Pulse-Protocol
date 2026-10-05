@@ -250,3 +250,23 @@ button:not(:disabled), select, a { cursor: pointer; }
 }
 
 [hidden] { display: none !important; }
+
+/* ---------- Update banner ("New version available — Reload"; js/pwa.js) ---------- */
+.update-banner {
+  position: sticky; top: calc(var(--nav-h) + 1px + env(safe-area-inset-top, 0px)); z-index: 49;
+  background: var(--surface); border-bottom: 1px solid var(--teal); box-shadow: var(--shadow);
+}
+.update-banner-inner {
+  max-width: calc(var(--shell-w) + 2 * var(--shell-pad)); margin: 0 auto;
+  padding: 6px var(--shell-pad); display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px;
+}
+.update-banner-msg { flex: 1 1 160px; font-size: 13px; line-height: 1.4; color: var(--text); }
+.update-banner-btn {
+  min-height: var(--tap); padding: 0 16px; border-radius: var(--radius-sm); border: none;
+  background: var(--green); color: var(--bg); font-weight: 700; font-size: 13px;
+}
+.update-banner-btn:disabled { opacity: 0.6; }
+.update-banner-later {
+  min-height: var(--tap); padding: 0 10px; border-radius: var(--radius-sm); border: none;
+  background: transparent; color: var(--text-muted); font-weight: 700; font-size: 13px;
+}

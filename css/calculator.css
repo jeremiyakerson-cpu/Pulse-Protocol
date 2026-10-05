@@ -62,3 +62,104 @@ tr:last-child td { border-bottom: none; }
 @media (max-width: 480px) and (pointer: coarse) {
   select, input { font-size: 16px; }
 }
+
+/* ---------- Search, favorites, recents ---------- */
+.search-field { position: relative; }
+input[type="search"]::-webkit-search-cancel-button { cursor: pointer; }
+.search-results {
+  position: absolute; z-index: 20; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none;
+  background: var(--surface); border: 1px solid var(--teal); border-radius: var(--radius); box-shadow: var(--shadow);
+  max-height: min(60vh, 360px); overflow-y: auto;
+}
+.search-results li[role="option"] {
+  display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: var(--tap);
+  padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer;
+}
+.search-results li[role="option"]:hover, .search-results li[aria-selected="true"] { background: rgba(var(--teal-rgb), 0.15); }
+.search-name { font-size: 14px; color: var(--text); }
+.search-group { font-size: 11px; color: var(--text-muted); }
+.search-empty { padding: 10px; font-size: 13px; color: var(--text-muted); }
+
+.chip-rows { margin: -4px 0 12px; }
+.chip-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.chip-label { flex-shrink: 0; min-width: 84px; padding-top: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.chip {
+  max-width: 100%; min-height: 36px; padding: 6px 12px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-soft); font-size: 12px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chip:hover { border-color: var(--teal); color: var(--text); }
+.chip[aria-current="true"] { border-color: var(--teal); background: rgba(var(--teal-rgb), 0.15); color: var(--text); }
+
+.select-row { display: flex; gap: 8px; }
+.select-row select { flex: 1; min-width: 0; }
+.fav-btn {
+  flex-shrink: 0; width: var(--tap); min-height: var(--tap); border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-muted); font-size: 20px; line-height: 1;
+}
+.fav-btn[aria-pressed="true"] { color: var(--amber); border-color: rgba(var(--amber-rgb), 0.6); }
+
+.mode-btn.unavailable { opacity: 0.45; }
+
+/* ---------- Weight entry ---------- */
+.weight-row input { flex: 1; min-width: 0; }
+.weight-row input:disabled { opacity: 0.5; }
+.clear-btn {
+  flex-shrink: 0; min-height: var(--tap); padding: 0 12px; border-radius: var(--radius);
+  border: 1px solid rgba(var(--red-rgb), 0.5); background: transparent; color: var(--red); font-size: 12px; font-weight: 700;
+}
+.clear-btn:hover { background: rgba(var(--red-rgb), 0.1); }
+.weight-status { margin-top: 6px; font-size: 12px; color: var(--text-muted); min-height: 1em; }
+.weight-msg:empty { display: none; }
+.weight-msg.is-error { margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--red); }
+.label-gap { margin-top: 12px; }
+.custom-conc { margin-top: 8px; }
+.unit-suffix { align-self: center; margin-top: 0; }
+
+.patient-check {
+  margin-bottom: 12px; padding: 12px 14px; border-radius: var(--radius);
+  background: rgba(var(--amber-rgb), 0.1); border: 1px solid var(--amber);
+}
+.patient-check-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.patient-check-text { margin: 4px 0 10px; font-size: 13px; line-height: 1.4; color: var(--text-soft); }
+.patient-check-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { min-height: var(--tap); padding: 0 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; }
+.btn-primary { border: none; background: var(--teal); color: var(--bg); }
+.btn-secondary { border: 1px solid var(--red); background: transparent; color: var(--red); }
+
+/* ---------- Readout safety ---------- */
+.dose-alert {
+  margin: 0 0 12px; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: rgba(var(--red-rgb), 0.12); border: 1px solid var(--red); border-left-width: 4px;
+  font-size: 13px; line-height: 1.4; color: var(--text);
+}
+.dose-alert strong { color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; }
+.dose-text { color: var(--text); font-size: 15px; }
+/* Always rendered with the dose; there is deliberately no way to dismiss it. */
+.verify-strip {
+  display: block !important; margin: 16px 0 0; padding: 10px 12px; border-radius: var(--radius-sm);
+  background: rgba(var(--amber-rgb), 0.12); border: 1px solid rgba(var(--amber-rgb), 0.5);
+  font-size: 12px; line-height: 1.4; color: var(--text);
+}
+.verify-strip strong { color: var(--amber); }
+
+/* ---------- Clinical note & content stamp ---------- */
+.warn-list { margin: 10px 0 0; padding-left: 18px; color: var(--amber); }
+.warn-list li { margin-bottom: 4px; }
+.src-line { margin-top: 6px; font-size: 11px; }
+.src-year { font-weight: 700; color: var(--text-soft); }
+.src-unknown { color: var(--amber); }
+.review-flag { color: var(--amber); }
+.v-hr { color: var(--green); }
+.v-rr { color: var(--teal); }
+.v-sbp { color: var(--amber); }
+.content-stamp {
+  margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border);
+  font-size: 11px; line-height: 1.6; color: var(--text-muted);
+}
+.stamp-pending { color: var(--amber); font-weight: 700; }
+
+@media print {
+  .verify-strip, .disclaimer { border: 1px solid #000; }
+}

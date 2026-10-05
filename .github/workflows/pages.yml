@@ -21,6 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Dose math, validation, weight memory, content stamp and precache list.
+      # A failing test blocks the deploy.
+      - name: Run tests
+        run: node --test tests/*.test.js
+
       - name: Assemble site
         run: |
           mkdir _site
