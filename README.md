@@ -1,16 +1,61 @@
+<div align="center">
+
+<img src="icons/icon-192.png" width="96" alt="Pulse & Protocol icon">
+
 # Pulse & Protocol
 
-ER-tested nursing education, built for the bedside. A small static site written by a practicing
-ER nurse, with free study tools that install to your phone and work offline.
+**Free ER nursing study tools, built by a practicing ER nurse. They install to your phone and work offline.**
 
-| Page | What it is |
+[**Open the live site →**](https://jeremiyakerson-cpu.github.io/Pulse-Protocol/)
+
+![No build step](https://img.shields.io/badge/build-none-2ea44f)
+![Offline PWA](https://img.shields.io/badge/PWA-offline--ready-0aa)
+![WCAG AA](https://img.shields.io/badge/a11y-WCAG%20AA-blue)
+![Vanilla JS](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JS-f7df1e)
+
+</div>
+
+---
+
+## Why this exists
+
+I've spent nearly ten years in the ER and critical care, much of it as a charge nurse. The study resources
+newer ER nurses get are usually locked behind paywalls, slow on a hospital phone, or useless in a
+dead zone. Pulse & Protocol is the reference I wished I had: fast, free, and still working when
+the Wi-Fi in the back hallway doesn't.
+
+## What's inside
+
+| Tool | What it does |
 | --- | --- |
-| `index.html` | Landing page: the two tools, offline/install, about the author, shop and newsletter links |
-| `calculator.html` | **ER Dosing Reference**: adult fixed-dose and pediatric weight-based dosing for common resuscitation drugs, plus a vitals reference table |
-| `quiz.html` | **ER Study Monitor**: a case-based ER quiz with score, streak and a per-category breakdown |
+| **ER Dosing Reference** (`calculator.html`) | Adult fixed-dose and pediatric weight-based dosing for common resuscitation drugs, plus a vitals reference table by age |
+| **ER Study Monitor** (`quiz.html`) | Case-based ER questions with score, streak and a breakdown by category, so you can see where to study next |
+| **Landing page** (`index.html`) | The tools, install/offline help, about the author, shop and newsletter links |
+
+### Built for real bedside conditions
+
+- **Works offline.** A service worker caches the whole site on the first visit, and a 4-second network timeout falls back to the cached copy.
+- **Installs like an app.** It's a PWA on iOS, Android and desktop, with an update notice that never reloads mid-quiz.
+- **Accessible.** Contrast meets WCAG AA in light and dark themes, tap targets are 44px or larger, it works with a keyboard, a screen reader and reduced motion, and layouts hold down to 320px.
+- **No dependencies.** It's plain HTML, CSS and JavaScript, with nothing to install and nothing to break.
 
 > **Educational use only.** Nothing here is for real-time clinical dosing decisions. Always confirm
 > against your facility's current protocols and pharmacy references.
+
+## About the author
+
+**Jeremi Yakerson, BSN, RN.** I'm an ER nurse with nearly 10 years in emergency and critical care,
+including work as a charge nurse and psychiatric liaison in a 55-bed ED. I build clinical education
+and clinical-reasoning tools at the intersection of nursing and software.
+
+- Related: [CEN EKG Rhythm Trainer](https://github.com/jeremiyakerson-cpu/work-flow), a rhythm-recognition and scenario trainer with automated content tests
+- Shop: [shoprn14 on Etsy](https://shoprn14.etsy.com)
+
+Feedback from nurses, educators and students is welcome. [Open an issue](https://github.com/jeremiyakerson-cpu/Pulse-Protocol/issues) with corrections or requests.
+
+---
+
+# For developers
 
 ## Project layout
 
