@@ -1,0 +1,164 @@
+/* Pulse iOS design — reusable components
+   Pulled from css/home.css, css/calculator.css and css/quiz.css in
+   Pulse-Protocol and gathered into one file. Requires assets/pulse.css
+   (tokens, nav, toast, a11y) to load first. Every value is a token, so
+   the light and dark themes both work with no extra rules. */
+
+/* ---------- Layout ---------- */
+.wrap { width: 100%; max-width: calc(var(--shell-w) + 2 * var(--shell-pad)); margin: 0 auto; padding: 28px var(--shell-pad); }
+.stack > * + * { margin-top: 16px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+/* ---------- Type ---------- */
+.eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); font-weight: 700; margin: 0 0 12px; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; display: block; }
+.title { font-size: 14px; font-weight: 700; }
+.subtitle { font-size: 11px; color: var(--text-muted); }
+.display-title { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 8px; }
+.display-title span { color: var(--green); }
+.body-soft { font-size: 13.5px; line-height: 1.55; color: var(--text-soft); }
+.fine { font-size: 11px; color: var(--text-faint); }
+
+/* ---------- Page header (tool pages) ---------- */
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.icon-box, .link-icon {
+  --accent-rgb: var(--teal-rgb);
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  background: rgba(var(--accent-rgb), 0.15); border: 1px solid rgba(var(--accent-rgb), 0.4);
+}
+.link-icon { width: 38px; height: 38px; font-size: 17px; }
+.accent-green { --accent-rgb: var(--green-rgb); }
+.accent-amber { --accent-rgb: var(--amber-rgb); }
+.accent-red { --accent-rgb: var(--red-rgb); }
+.accent-purple { --accent-rgb: var(--purple-rgb); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--tap); padding: 0 16px; border-radius: 10px;
+  font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent;
+}
+.btn-primary { background: var(--green); color: var(--bg); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--teal); }
+.btn-block { display: flex; width: 100%; }
+.btn-lg { font-size: 14px; padding: 14px; border-radius: var(--radius); }
+
+/* ---------- Cards ---------- */
+.card { border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+.card-accent { --accent-rgb: var(--teal-rgb); border-top: 3px solid rgba(var(--accent-rgb), 0.8); }
+.card-glow { box-shadow: 0 0 30px -15px rgba(var(--teal-rgb), 0.4); }
+.card-glow.accent-green { box-shadow: 0 0 30px -15px rgba(var(--green-rgb), 0.4); }
+.card-dashed { border-radius: var(--radius-lg); border: 1px dashed var(--border); padding: 14px 16px; }
+
+/* Tappable list row: icon, title + subtitle, chevron */
+.link-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-radius: 14px; background: var(--surface); border: 1px solid var(--border); padding: 16px 18px;
+  margin-bottom: 10px; text-decoration: none; color: var(--text); transition: border-color .15s ease;
+}
+.link-card:hover, .link-card:active { border-color: var(--teal); }
+.link-left { display: flex; align-items: center; gap: 12px; }
+.link-title { font-size: 14px; font-weight: 700; }
+.link-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.arrow { color: var(--text-muted); font-size: 16px; }
+
+/* Dot-bullet list */
+.dot-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.dot-list li { --accent-rgb: var(--teal-rgb); position: relative; padding-left: 18px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); margin-bottom: 6px; }
+.dot-list li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--accent-rgb)); }
+
+/* ---------- Big number readout ---------- */
+.readout { border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; box-shadow: 0 0 30px -15px rgba(var(--teal-rgb), 0.4); }
+.big-num { font-size: 36px; font-weight: 700; color: var(--green); line-height: 1; font-variant-numeric: tabular-nums; }
+.big-unit { font-size: 18px; color: var(--text-muted); margin-left: 4px; }
+.big-desc { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+
+/* ---------- Callouts ---------- */
+.disclaimer {
+  border-radius: var(--radius); background: rgba(var(--amber-rgb), 0.1); border: 1px solid rgba(var(--amber-rgb), 0.4);
+  padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 8px; align-items: flex-start;
+}
+.disclaimer .ico { color: var(--amber); flex-shrink: 0; }
+.disclaimer p { margin: 0; font-size: 12px; line-height: 1.5; color: rgba(var(--amber-rgb), 0.9); }
+.note-box { border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); padding: 14px; margin-bottom: 18px; }
+.note-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); font-weight: 700; margin-bottom: 6px; }
+.note-body { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.warn-line { margin-top: 8px; font-size: 12px; color: var(--amber); display: flex; align-items: center; gap: 6px; }
+
+/* ---------- Forms ---------- */
+.field { margin-bottom: 16px; }
+.input, .select {
+  width: 100%; min-height: var(--tap); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 14px; color: var(--text);
+}
+.input::placeholder { color: var(--text-faint); }
+.input:focus, .select:focus { border-color: var(--teal); }
+.field-note { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
+/* iOS zooms into inputs below 16px; keep the smaller look on desktop */
+@media (max-width: 480px) and (pointer: coarse) { .input, .select { font-size: 16px; } }
+
+/* Segmented control (iOS UISegmentedControl look) */
+.segmented { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; }
+.segmented button {
+  flex: 1; min-height: var(--tap); min-width: var(--tap); padding: 0 14px; border-radius: var(--radius-sm); border: none;
+  background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 700;
+}
+.segmented button[aria-pressed="true"], .segmented button.active { background: var(--teal); color: var(--bg); }
+.segmented.green button[aria-pressed="true"], .segmented.green button.active { background: var(--green); }
+
+/* Disclosure row (expand / collapse) */
+.disclosure {
+  width: 100%; min-height: var(--tap); display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; font-weight: 700; text-align: left;
+}
+.chevron { transition: transform .2s ease; }
+.disclosure[aria-expanded="true"] .chevron, .chevron.open { transform: rotate(180deg); }
+
+/* ---------- Choice rows (quiz answers, pickers) ---------- */
+.opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  text-align: left; width: 100%; min-height: var(--tap); padding: 12px 14px; border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  font-size: 14px; margin-bottom: 10px; transition: all .15s ease;
+}
+.opt:not(:disabled):hover { border-color: var(--teal); }
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--green); background: rgba(var(--green-rgb), 0.1); }
+.opt.wrong { border-color: var(--red); background: rgba(var(--red-rgb), 0.1); }
+.opt.dim { opacity: 0.45; }
+
+/* ---------- Chips and progress ---------- */
+.chip {
+  --accent-rgb: var(--green-rgb);
+  display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);
+  color: rgb(var(--accent-rgb)); background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+.chip-caps { text-transform: uppercase; letter-spacing: 1px; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 12px 0 0; }
+.progress { margin-top: 12px; height: 6px; border-radius: 4px; background: var(--bg); overflow: hidden; }
+.progress > span { display: block; height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width .4s ease; }
+
+/* ---------- Tables ---------- */
+.table-wrap { margin-top: 8px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table th { text-align: left; font-weight: 500; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.table tr:last-child td { border-bottom: none; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Footer ---------- */
+.footer { text-align: center; margin-top: 40px; font-size: 10.5px; color: var(--text-faint); line-height: 1.6; }
+.footer a { color: var(--text-muted); }
+
+/* Show only on iOS Safari, where there is no install prompt */
+.ios-only { display: none; }
+@supports (-webkit-touch-callout: none) { .ios-only { display: inline; } }

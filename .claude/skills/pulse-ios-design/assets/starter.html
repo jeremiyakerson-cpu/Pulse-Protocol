@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Screen title | App name</title>
+<meta name="theme-color" content="#0E1A24" />
+<meta name="color-scheme" content="dark light" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="App" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<link rel="stylesheet" href="css/pulse.css" />
+<link rel="stylesheet" href="css/components.css" />
+<!-- Load synchronously in <head> so the theme is set before first paint -->
+<script src="js/theme.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<nav class="site-nav" aria-label="Primary">
+  <div class="site-nav-inner">
+    <div class="nav-left">
+      <a class="nav-brand" href="index.html"><span class="dot" aria-hidden="true"></span><span class="nav-brand-text">App <span>&amp;</span> Name</span></a>
+      <span class="offline-badge" role="status">Offline</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" aria-current="page">Home</a></li>
+      <li><a href="tool.html">Tool</a></li>
+      <!-- theme.js adds the theme toggle here -->
+    </ul>
+  </div>
+</nav>
+
+<main class="wrap" id="main" tabindex="-1">
+  <div class="header">
+    <div class="icon-box" aria-hidden="true">💉</div>
+    <div>
+      <h1 class="title">Screen title</h1>
+      <div class="subtitle">One-line description</div>
+    </div>
+  </div>
+
+  <div class="disclaimer" role="note">
+    <span class="ico" aria-hidden="true">⚠︎</span>
+    <p>Caution text goes here. Amber is for caution, red for danger.</p>
+  </div>
+
+  <div class="field">
+    <span class="label" id="mode-label">Mode</span>
+    <div class="segmented" role="group" aria-labelledby="mode-label">
+      <button type="button" aria-pressed="true">First</button>
+      <button type="button" aria-pressed="false">Second</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label" for="weight">Weight</label>
+    <input class="input" id="weight" inputmode="decimal" placeholder="e.g. 22" />
+    <div class="field-note">Helper text under the field.</div>
+  </div>
+
+  <section class="readout" aria-live="polite">
+    <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Result</div>
+    <div style="margin-top:10px"><span class="big-num">0.22</span><span class="big-unit">mL</span></div>
+    <div class="big-desc">What the number means.</div>
+  </section>
+
+  <div class="note-box">
+    <div class="note-title">Note</div>
+    <div class="note-body">Secondary information sits on --bg inside a bordered box.</div>
+  </div>
+
+  <a class="link-card" href="#">
+    <span class="link-left">
+      <span class="link-icon accent-amber" aria-hidden="true">📘</span>
+      <span><span class="link-title">Row title</span><span class="link-sub" style="display:block">Row subtitle</span></span>
+    </span>
+    <span class="arrow" aria-hidden="true">›</span>
+  </a>
+
+  <a class="btn btn-primary btn-block btn-lg" href="#">Primary action</a>
+  <p class="footer">Footer fine print.</p>
+</main>
+
+<div class="toast" role="status" hidden>
+  <span class="toast-msg">Update available.</span>
+  <button class="toast-btn" type="button">Reload</button>
+  <button class="toast-close" type="button" aria-label="Dismiss">×</button>
+</div>
+</body>
+</html>
