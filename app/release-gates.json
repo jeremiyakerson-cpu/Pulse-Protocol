@@ -1,0 +1,5 @@
+{
+  "clinician_review": { "label": "Clinician review of dosing reference and answer keys", "done": false, "by": null, "date": null },
+  "peds_age_banding": { "label": "Pediatric age-banding review", "done": false, "by": null, "date": null },
+  "bcen_outline": { "label": "Content mapped to the July 2026 BCEN outline", "done": false, "by": null, "date": null }
+}
