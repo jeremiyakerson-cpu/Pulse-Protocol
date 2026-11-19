@@ -19,7 +19,8 @@
 
   var SECTION_CODE = {
     'Cardiovascular': 'CV', 'Respiratory': 'RS', 'Neurological': 'NE', 'Medical emergencies': 'ME',
-    'Musculoskeletal and wound': 'MS', 'Pediatrics': 'PD', 'Triage': 'TR'
+    'Musculoskeletal and wound': 'MS', 'Pediatrics': 'PD', 'Triage': 'TR',
+    'Gastrointestinal': 'GI', 'Obstetric and gynecologic': 'OB', 'Toxicology': 'TX', 'Ocular and ENT': 'EY'
   };
   function code(section) { return SECTION_CODE[section] || section.slice(0, 2).toUpperCase(); }
   function kindChip(kind) {

@@ -8,9 +8,12 @@ sys.path.insert(0, str(ROOT / "content"))
 from cases import CASES            # noqa: E402
 from index_entries import INDEX    # noqa: E402
 from dosing import DOSING, EXCLUDED  # noqa: E402
+from cases_batch2 import CASES_2  # noqa: E402
+from index_batch2 import INDEX_2  # noqa: E402
+from dosing_batch2 import DOSING_2  # noqa: E402
 
 def checkpoint():
-    data = dict(version="13.1-draft", cases=CASES, index=INDEX, dosing=DOSING, excluded=EXCLUDED)
+    data = dict(version="13.1-draft", cases=CASES + CASES_2, index=INDEX + INDEX_2, dosing=DOSING + DOSING_2, excluded=EXCLUDED)
     (ROOT / "build").mkdir(exist_ok=True)
     out = ROOT / "build" / "content.json"
     out.write_text(json.dumps(data, indent=1, ensure_ascii=False))
