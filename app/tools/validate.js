@@ -90,7 +90,9 @@ const app = fs.readFileSync(path.join(ROOT, 'src/js/app.js'), 'utf8');
   if (!fs.existsSync(p)) { ok(false, `${f}: not built`); return; }
   const html = fs.readFileSync(p, 'utf8');
   ok(!/\/\*(CSS|THEME|DATA|LOGIC|APP)\*\//.test(html), `${f}: unfilled placeholder`);
-  ok(!/<script[^>]+src=|<link[^>]+stylesheet/.test(html), `${f}: external resource (must work offline)`);
+  ok(!/<script[^>]+src=/.test(html), `${f}: external script (must work offline)`);
+  const sheets = html.match(/<link[^>]+stylesheet[^>]*>/g) || [];
+  ok(sheets.every(l => l.includes('fonts.googleapis.com')), `${f}: only Google Fonts may load externally (system fonts are the offline fallback)`);
   ['skip-link', 'id="main"', 'aria-label="Tabs"'].forEach(s => ok(html.includes(s), `${f}: missing ${s}`));
   ok(!/,,/.test(fs.readFileSync(path.join(ROOT, 'build/content.js'), 'utf8')), 'content.js: double comma');
 });

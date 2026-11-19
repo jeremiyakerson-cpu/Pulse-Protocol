@@ -37,8 +37,8 @@
     list.forEach(function (x) { var k = x[key]; if (!seen[k]) { seen[k] = []; out.push([k, seen[k]]); } seen[k].push(x); });
     return out;
   }
-  function header(eyebrow, title, sub) {
-    return '<div class="page-head"><div class="eyebrow">' + h(eyebrow) + '</div>' +
+  function header(eyebrow, title, sub, backHtml) {
+    return '<div class="page-head">' + (backHtml || '') + '<div class="eyebrow">' + h(eyebrow) + '</div>' +
       '<h1 class="page-title">' + title + '</h1>' + (sub ? '<p class="page-sub">' + h(sub) + '</p>' : '') + '</div>';
   }
   function back(href, label) { return '<a class="back-link" href="#' + href + '"><span aria-hidden="true">‹</span> ' + h(label) + '</a>'; }
@@ -86,7 +86,7 @@
     var c = byId(D.cases, id);
     if (!c) return notFound();
     if (!run || run.id !== id) startRun(c);
-    var html = back('test', 'Cases') + header(c.section, h(c.title), null);
+    var html = header(c.section, h(c.title), null, back('test', 'Cases'));
     html += '<div class="chip-row">' + kindChip(c.kind) + '<span class="chip neutral-chip">' + h(c.patient) + '</span></div>';
     html += '<section class="card"><div class="note-title">Presentation</div><p class="body-soft">' + h(c.vignette) + '</p>' + vitals(c.vitals) + '</section>';
     for (var i = 0; i <= run.stage && i < c.stages.length; i++) html += stageHtml(c, i);
@@ -227,7 +227,7 @@
   function viewEntry(id) {
     var e = byId(D.index, id);
     if (!e) return notFound();
-    var html = back('index', 'Index') + header(e.category, h(e.title), null);
+    var html = header(e.category, h(e.title), null, back('index', 'Index'));
     html += '<div class="chip-row">' + (e.kind === 'card' ? '<span class="chip accent-purple-chip">Descriptive reference card</span>' : '<span class="chip accent-teal-chip">Topic</span>') + '</div>';
     html += '<p class="body-soft lead">' + h(e.summary) + '</p>';
     html += e.flags.map(function (f) { return '<div class="disclaimer" role="note"><span class="ico" aria-hidden="true">⚠︎</span><p><strong>Guideline note.</strong> ' + h(f) + '</p></div>'; }).join('');
@@ -387,7 +387,7 @@
   }
 
   // ---------- router ----------
-  function notFound() { main.innerHTML = back('test', 'Cases') + '<div class="card-dashed empty">That page does not exist. It may have been renamed.</div>'; }
+  function notFound() { main.innerHTML = header('Not found', 'Page not found', null, back('test', 'Cases')) + '<div class="card-dashed empty">That page does not exist. It may have been renamed.</div>'; }
   function route() {
     var hash = (location.hash || '#test').slice(1), tab = 'test';
     if (hash.indexOf('case-') === 0) { viewCase(hash.slice(5)); }

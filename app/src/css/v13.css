@@ -1,0 +1,100 @@
+/* Pulse & Protocol v13 look: navy gradient header, soft gray page, white rounded
+   cards, coral accents, navy three-tab bar. Space Grotesk / Inter Tight / JetBrains Mono.
+   Loaded after pulse.css, components.css and app.css; it redefines the same tokens,
+   so components need no changes. Contrast checked to WCAG AA in both themes. */
+
+/* Light is the v13 default look */
+:root, :root[data-theme="light"] {
+  --bg: #F1F3F7; --surface: #FFFFFF; --border: #DFE4EC;
+  --text: #12203D; --text-soft: #2E3B57; --text-muted: #55617A; --text-faint: #606C84;
+  --coral: #C9432D; --coral-ink: #C23B26; --coral-rgb: 201, 67, 45;
+  --green: #12804A; --green-rgb: 18, 128, 74;
+  --teal: #2850B0; --teal-rgb: 40, 80, 176;          /* focus + selected: navy blue */
+  --amber: #985700; --amber-rgb: 152, 87, 0;
+  --red: #B8321E; --red-rgb: 184, 50, 30;
+  --purple: #6B3FA0; --purple-rgb: 107, 63, 160;
+  --navy-1: #0E1A3A; --navy-2: #1C3170; --on-navy: #FFFFFF; --on-navy-soft: #C6D0E8; --on-navy-muted: #A9B4CF;
+  --coral-on-navy: #FF8F7A;
+  --nav-bg: #0E1A3A; --statusbar-bg: #0E1A3A;
+  --card-shadow: 0 1px 2px rgba(14, 26, 58, 0.06), 0 6px 18px -8px rgba(14, 26, 58, 0.12);
+  --shadow: 0 10px 28px -12px rgba(14, 26, 58, 0.35);
+  --radius-lg: 20px;
+  --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0B1430; --surface: #13204A; --border: #24345F;
+  --text: #EAF0FA; --text-soft: #C9D3E6; --text-muted: #93A1BF; --text-faint: #8794B2;
+  --coral: #FF7A63; --coral-ink: #FF8F7A; --coral-rgb: 255, 122, 99;
+  --green: #3DD68C; --green-rgb: 61, 214, 140;
+  --teal: #86A8FF; --teal-rgb: 134, 168, 255;
+  --amber: #F2B04B; --amber-rgb: 242, 176, 75;
+  --red: #FF7A68; --red-rgb: 255, 122, 104;
+  --purple: #C29BEB; --purple-rgb: 194, 155, 235;
+  --navy-1: #08102A; --navy-2: #172A62;
+  --nav-bg: #08102A; --statusbar-bg: #08102A;
+  --card-shadow: none;
+  --shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+body { font-family: var(--font-sans); background: var(--bg); }
+.page-title, .nav-brand, .big-num, .stat-sm, .link-title, .question, .display-title { font-family: var(--font-display); }
+.mono, .vitals dd, .opt-letter, .code-tile { font-family: var(--font-mono); }
+
+/* Navy header: the nav and the page heading form one gradient band */
+.site-nav { background: var(--navy-1); border-bottom: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav-brand { color: var(--on-navy); }
+.nav-brand-text > span { color: var(--coral-on-navy); }
+.site-nav .dot { background: var(--coral-on-navy); }
+.theme-toggle { color: var(--on-navy-muted); }
+.theme-toggle:hover { color: var(--on-navy); background: rgba(255, 255, 255, 0.08); }
+.offline-badge { color: var(--coral-on-navy); border-color: rgba(255, 143, 122, 0.5); }
+
+.page-head {
+  margin: -20px calc(-1 * max(var(--shell-pad), env(safe-area-inset-left, 0px))) 20px;
+  padding: 10px max(var(--shell-pad), env(safe-area-inset-left, 0px)) 26px;
+  background: linear-gradient(180deg, var(--navy-1) 0%, var(--navy-2) 100%);
+  border-radius: 0 0 26px 26px;
+  color: var(--on-navy);
+}
+.page-head .eyebrow { color: var(--on-navy-muted); }
+.page-head .page-title { color: var(--on-navy); }
+.page-head .page-sub { color: var(--on-navy-soft); }
+.page-head .back-link { color: var(--coral-on-navy); margin: 0 0 2px -6px; }
+@media (min-width: 452px) {
+  .page-head { margin-left: 0; margin-right: 0; border-radius: 0 0 26px 26px; padding-left: 20px; padding-right: 20px; }
+}
+
+/* White rounded cards on soft gray */
+.card, .readout, .link-card, .stat-card { box-shadow: var(--card-shadow); border-color: var(--border); }
+.link-card { border-radius: 18px; }
+.readout { box-shadow: var(--card-shadow); }
+.opt { background: var(--surface); }
+.card .opt, .stage .opt { background: var(--bg); }
+.vitals div { background: var(--bg); }
+
+/* Coral accents */
+.btn-primary { background: var(--coral); color: #FFFFFF; }
+:root[data-theme="dark"] .btn-primary { color: var(--navy-1); }
+.section-label, .note-title { color: var(--coral-ink); }
+.big-num { color: var(--text); }
+.big-num.is-low { color: var(--red); }
+.readout .eyebrow .dot, .summary .dot { background: var(--coral); }
+.code-tile { --accent-rgb: var(--coral-rgb); color: var(--coral-ink); }
+.code-tile.accent-amber { --accent-rgb: var(--amber-rgb); color: var(--amber); }
+.code-tile.accent-purple { --accent-rgb: var(--purple-rgb); color: var(--purple); }
+.progress > span { background: linear-gradient(90deg, var(--navy-2), var(--coral)); }
+:root[data-theme="dark"] .progress > span { background: linear-gradient(90deg, var(--teal), var(--coral)); }
+.segmented button[aria-pressed="true"] { background: var(--navy-2); color: #FFFFFF; }
+:root[data-theme="dark"] .segmented button[aria-pressed="true"] { background: var(--coral); color: var(--navy-1); }
+.back-link { color: var(--coral-ink); }
+.chip { font-family: var(--font-sans); }
+
+/* Navy three-tab bar */
+.tabbar { background: var(--navy-1); border-top: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.tabbar a { color: var(--on-navy-muted); }
+.tabbar a:hover, .tabbar a:active { color: var(--on-navy); }
+.tabbar a[aria-current="page"] { color: var(--coral-on-navy); }

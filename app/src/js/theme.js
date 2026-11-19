@@ -6,7 +6,7 @@
   var KEY = 'pulse-theme';
   var root = document.documentElement;
   var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
-  var THEME_COLOR = { dark: '#0E1A24', light: '#F4F7F8' };
+  var THEME_COLOR = { dark: '#08102A', light: '#0E1A3A' }; // v13: navy header in both themes
 
   function saved() {
     try { var v = localStorage.getItem(KEY); return v === 'light' || v === 'dark' ? v : null; }

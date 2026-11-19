@@ -23,13 +23,13 @@ def section(tpl, name):
 ARTIFACT_CSS = """
 /* Artifact host pads :root by the safe areas, so the nav sticks below the top inset */
 .site-nav { top: env(safe-area-inset-top, 0px); padding-top: 0; background: var(--nav-bg); }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--nav-bg); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--navy-1); }
 """
 
 def build():
     subprocess.run([sys.executable, str(ROOT / "tools" / "author.py")], check=True)
     tpl = read("src/app.html")
-    css = read("src/css/pulse.css") + read("src/css/components.css") + read("src/css/app.css")
+    css = read("src/css/pulse.css") + read("src/css/components.css") + read("src/css/app.css") + read("src/css/v13.css")
     def fill(t, css_text, extra_head):
         t = replace_once(t, "/*CSS*/", css_text)
         t = replace_once(t, "/*THEME*/", read("src/js/theme.js"))
