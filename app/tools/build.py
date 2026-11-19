@@ -48,6 +48,24 @@ def build():
     frag = section(art, "HEAD") + "\n" + section(art, "BODY") + "\n"
     (ROOT / "dist" / "artifact.html").write_text(frag)
     print(f"dist/index.html {len(doc)//1024} KB, dist/artifact.html {len(frag)//1024} KB")
+    build_review(css)
+
+FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+         '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800'
+         '&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@600;700&display=swap">\n')
+
+def build_review(app_css):
+    """dist/review.html: clinician review checklist (Artifact fragment, uses the db capability)."""
+    t = read("src/review/review.html")
+    t = replace_once(t, "/*CSS*/", app_css + ARTIFACT_CSS + read("src/review/review.css"))
+    t = replace_once(t, "/*THEME*/", read("src/js/theme.js"))
+    t = replace_once(t, "/*DATA*/", read("build/content.js"))
+    t = replace_once(t, "/*APP*/", read("src/review/review.js"))
+    t = replace_once(t, "<!--EXTRA_HEAD-->", '<meta name="claude:viewport-fit-sides" content="cover">\n' + FONTS)
+    frag = section(t, "HEAD") + "\n" + section(t, "BODY") + "\n"
+    (ROOT / "dist" / "review.html").write_text(frag)
+    print(f"dist/review.html {len(frag)//1024} KB")
 
 if __name__ == "__main__":
     build()

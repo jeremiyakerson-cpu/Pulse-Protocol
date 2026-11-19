@@ -1,0 +1,1001 @@
+<title>Pulse Clinical Review</title>
+<meta name="theme-color" content="#0E1A3A">
+<meta name="color-scheme" content="dark light">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@600;700&display=swap">
+
+<style>/* Pulse & Protocol — shared design system
+   Tokens, base styles, site navigation and accessibility helpers used by
+   every page. Page-specific styles live in css/<page>.css. */
+
+:root {
+  /* Surfaces */
+  --bg: #0E1A24;
+  --surface: #142430;
+  --border: #22384A;
+
+  /* Text */
+  --text: #E8F0F2;
+  --text-soft: #C7D4D9;
+  --text-muted: #8FA8B3;
+  --text-faint: #7F929C; /* was #5A6B75 — raised to meet WCAG AA (5.4:1 on --bg) */
+
+  /* Accents */
+  --green: #35D07F;
+  --teal: #2FB8C6;
+  --amber: #F2A93B;
+  --red: #E5533D;
+  --purple: #B98CE0;
+
+  --green-rgb: 53, 208, 127;
+  --teal-rgb: 47, 184, 198;
+  --amber-rgb: 242, 169, 59;
+  --red-rgb: 229, 83, 61;
+  --purple-rgb: 185, 140, 224;
+
+  --nav-bg: rgba(14, 26, 36, 0.92);
+  --statusbar-bg: #0E1A24; /* iOS standalone status-bar strip (always dark: the bar's text is white) */
+  --shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+
+  /* Type */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Interaction */
+  --tap: 44px;              /* minimum touch target */
+  --focus-ring: 2px solid var(--teal);
+  --nav-h: 52px;
+
+  /* Page column: nav and content share this width so they line up */
+  --shell-w: 420px;
+  --shell-pad: 16px;
+
+  color-scheme: dark;
+}
+
+/* Light theme. js/theme.js sets data-theme from the saved choice or the
+   system preference. Accents are darkened so text on --bg/--surface still
+   meets WCAG AA. */
+:root[data-theme="light"] {
+  --bg: #F4F7F8;
+  --surface: #FFFFFF;
+  --border: #D3DEE3;
+
+  --text: #0E1A24;
+  --text-soft: #26394A;
+  --text-muted: #4A6070;
+  --text-faint: #5B6F7B;
+
+  --green: #0E7A45;
+  --teal: #0A6F7C;
+  --amber: #8F5300;
+  --red: #B8321E;
+  --purple: #7440A8;
+
+  --green-rgb: 14, 122, 69;
+  --teal-rgb: 10, 111, 124;
+  --amber-rgb: 143, 83, 0;
+  --red-rgb: 184, 50, 30;
+  --purple-rgb: 116, 64, 168;
+
+  --nav-bg: rgba(244, 247, 248, 0.92);
+  --shadow: 0 8px 24px -12px rgba(14, 26, 36, 0.25);
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* Tool pages (calculator, quiz) share a narrow centred column */
+.wrap {
+  width: 100%;
+  max-width: calc(var(--shell-w) + 2 * var(--shell-pad));
+  margin: 0 auto;
+  padding: 28px var(--shell-pad);
+}
+
+/* Live indicator dot */
+.dot {
+  display: inline-block; flex-shrink: 0;
+  width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+
+/* ---------- Site navigation ---------- */
+.skip-link {
+  position: absolute; left: 8px; top: -100px; z-index: 100;
+  background: var(--green); color: var(--bg); font-weight: 700; font-size: 13px;
+  padding: 10px 14px; border-radius: var(--radius-sm); text-decoration: none;
+}
+.skip-link:focus { top: 8px; }
+[tabindex="-1"]:focus { outline: none; }
+
+.site-nav {
+  position: sticky; top: 0; z-index: 50;
+  /* The strip under the iOS status bar stays dark so its white text is legible */
+  background: linear-gradient(var(--statusbar-bg) env(safe-area-inset-top, 0px), var(--nav-bg) env(safe-area-inset-top, 0px));
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top);
+}
+.site-nav-inner {
+  max-width: calc(var(--shell-w) + 2 * var(--shell-pad)); margin: 0 auto; min-height: var(--nav-h);
+  padding: 0 max(var(--shell-pad), env(safe-area-inset-right)) 0 max(var(--shell-pad), env(safe-area-inset-left));
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.nav-brand {
+  display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap);
+  color: var(--text); text-decoration: none; font-weight: 800; font-size: 14px;
+  letter-spacing: -0.2px; white-space: nowrap; border-radius: var(--radius-sm);
+}
+.nav-brand-text > span { color: var(--green); }
+.nav-links { display: flex; gap: 2px; margin: 0 -10px 0 0; padding: 0; list-style: none; }
+.nav-links a {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: var(--tap); min-width: var(--tap); padding: 0 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 700;
+}
+.nav-links a:hover { color: var(--text); background: var(--surface); }
+.nav-links a[aria-current="page"] { color: var(--green); background: rgba(var(--green-rgb), 0.1); }
+
+/* Theme toggle (injected into .nav-links by js/theme.js) */
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--tap); height: var(--tap); padding: 0; border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-size: 18px; line-height: 1;
+}
+.theme-toggle:hover { color: var(--text); background: var(--surface); }
+
+/* Offline indicator (toggled by js/pwa.js) */
+.offline-badge {
+  display: none; margin-left: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--amber); border: 1px solid rgba(var(--amber-rgb), 0.4);
+  border-radius: var(--radius-pill); padding: 2px 6px;
+}
+html.is-offline .offline-badge { display: inline-block; }
+
+.nav-left { display: flex; align-items: center; min-width: 0; }
+
+@media (max-width: 359px) {
+  /* Very narrow screens: keep the brand link accessible but show only the dot */
+  .nav-brand .nav-brand-text {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  .nav-brand { min-width: var(--tap); justify-content: center; }
+}
+
+@media (max-width: 400px) {
+  .nav-links a { padding: 0 8px; }
+}
+
+/* ---------- Toast (update available / ready offline; js/pwa.js) ---------- */
+.toast {
+  position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  width: calc(100% - 2 * var(--shell-pad)); max-width: var(--shell-w);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px 8px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--teal); box-shadow: var(--shadow);
+  color: var(--text); font-size: 13px; line-height: 1.4;
+}
+.toast[hidden] { display: none; }
+.toast-msg { flex: 1; }
+.toast-btn {
+  min-height: var(--tap); padding: 0 14px; border-radius: var(--radius-sm); border: none;
+  background: var(--green); color: var(--bg); font-weight: 700; font-size: 13px;
+}
+.toast-close {
+  min-width: var(--tap); min-height: var(--tap); border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-muted); font-size: 18px;
+}
+
+/* ---------- Light theme: legacy inline colours ----------
+   Some calculator/quiz markup is generated with hard-coded dark-theme colours
+   in style="" attributes. Remap them to tokens so the light theme stays legible
+   without touching that logic. !important is what lets a stylesheet beat an
+   inline style. */
+:root[data-theme="light"] [style*="color:#E8F0F2" i] { color: var(--text) !important; }
+:root[data-theme="light"] [style*="color:#8FA8B3" i] { color: var(--text-muted) !important; }
+:root[data-theme="light"] [style*="color:#35D07F" i] { color: var(--green) !important; }
+:root[data-theme="light"] [style*="color:#2FB8C6" i] { color: var(--teal) !important; }
+:root[data-theme="light"] [style*="color:#F2A93B" i] { color: var(--amber) !important; }
+:root[data-theme="light"] [style*="color:#E5533D" i] { color: var(--red) !important; }
+:root[data-theme="light"] [style*="color:#B98CE0" i] { color: var(--purple) !important; }
+:root[data-theme="light"] [style*="background:#0E1A24" i] { background: var(--bg) !important; }
+:root[data-theme="light"] [style*="background:#142430" i] { background: var(--surface) !important; }
+:root[data-theme="light"] [style*="solid #22384A" i] { border-color: var(--border) !important; }
+/* Category chips take their colour from quiz data, and pale colours can't carry
+   text on a light background: keep the tinted fill/border, use body text. */
+:root[data-theme="light"] .cat-badge { color: var(--text) !important; }
+
+/* ---------- Accessibility ---------- */
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+:focus { outline: none; }
+:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+input:focus-visible, select:focus-visible { outline-offset: 0; }
+
+button, select, input { font-family: inherit; }
+button:not(:disabled), select, a { cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .dot { forced-color-adjust: none; }
+}
+
+[hidden] { display: none !important; }
+/* Pulse iOS design — reusable components
+   Pulled from css/home.css, css/calculator.css and css/quiz.css in
+   Pulse-Protocol and gathered into one file. Requires assets/pulse.css
+   (tokens, nav, toast, a11y) to load first. Every value is a token, so
+   the light and dark themes both work with no extra rules. */
+
+/* ---------- Layout ---------- */
+.wrap { width: 100%; max-width: calc(var(--shell-w) + 2 * var(--shell-pad)); margin: 0 auto; padding: 28px var(--shell-pad); }
+.stack > * + * { margin-top: 16px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+/* ---------- Type ---------- */
+.eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+}
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--teal); font-weight: 700; margin: 0 0 12px; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; display: block; }
+.title { font-size: 14px; font-weight: 700; }
+.subtitle { font-size: 11px; color: var(--text-muted); }
+.display-title { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 8px; }
+.display-title span { color: var(--green); }
+.body-soft { font-size: 13.5px; line-height: 1.55; color: var(--text-soft); }
+.fine { font-size: 11px; color: var(--text-faint); }
+
+/* ---------- Page header (tool pages) ---------- */
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.icon-box, .link-icon {
+  --accent-rgb: var(--teal-rgb);
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  background: rgba(var(--accent-rgb), 0.15); border: 1px solid rgba(var(--accent-rgb), 0.4);
+}
+.link-icon { width: 38px; height: 38px; font-size: 17px; }
+.accent-green { --accent-rgb: var(--green-rgb); }
+.accent-amber { --accent-rgb: var(--amber-rgb); }
+.accent-red { --accent-rgb: var(--red-rgb); }
+.accent-purple { --accent-rgb: var(--purple-rgb); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: var(--tap); padding: 0 16px; border-radius: 10px;
+  font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid transparent;
+}
+.btn-primary { background: var(--green); color: var(--bg); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--teal); }
+.btn-block { display: flex; width: 100%; }
+.btn-lg { font-size: 14px; padding: 14px; border-radius: var(--radius); }
+
+/* ---------- Cards ---------- */
+.card { border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); padding: 20px; }
+.card-accent { --accent-rgb: var(--teal-rgb); border-top: 3px solid rgba(var(--accent-rgb), 0.8); }
+.card-glow { box-shadow: 0 0 30px -15px rgba(var(--teal-rgb), 0.4); }
+.card-glow.accent-green { box-shadow: 0 0 30px -15px rgba(var(--green-rgb), 0.4); }
+.card-dashed { border-radius: var(--radius-lg); border: 1px dashed var(--border); padding: 14px 16px; }
+
+/* Tappable list row: icon, title + subtitle, chevron */
+.link-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border-radius: 14px; background: var(--surface); border: 1px solid var(--border); padding: 16px 18px;
+  margin-bottom: 10px; text-decoration: none; color: var(--text); transition: border-color .15s ease;
+}
+.link-card:hover, .link-card:active { border-color: var(--teal); }
+.link-left { display: flex; align-items: center; gap: 12px; }
+.link-title { font-size: 14px; font-weight: 700; }
+.link-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.arrow { color: var(--text-muted); font-size: 16px; }
+
+/* Dot-bullet list */
+.dot-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.dot-list li { --accent-rgb: var(--teal-rgb); position: relative; padding-left: 18px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); margin-bottom: 6px; }
+.dot-list li::before { content: ""; position: absolute; left: 2px; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: rgb(var(--accent-rgb)); }
+
+/* ---------- Big number readout ---------- */
+.readout { border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; box-shadow: 0 0 30px -15px rgba(var(--teal-rgb), 0.4); }
+.big-num { font-size: 36px; font-weight: 700; color: var(--green); line-height: 1; font-variant-numeric: tabular-nums; }
+.big-unit { font-size: 18px; color: var(--text-muted); margin-left: 4px; }
+.big-desc { font-size: 13px; color: var(--text-muted); margin-top: 8px; }
+
+/* ---------- Callouts ---------- */
+.disclaimer {
+  border-radius: var(--radius); background: rgba(var(--amber-rgb), 0.1); border: 1px solid rgba(var(--amber-rgb), 0.4);
+  padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 8px; align-items: flex-start;
+}
+.disclaimer .ico { color: var(--amber); flex-shrink: 0; }
+.disclaimer p { margin: 0; font-size: 12px; line-height: 1.5; color: rgba(var(--amber-rgb), 0.9); }
+.note-box { border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); padding: 14px; margin-bottom: 18px; }
+.note-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--teal); font-weight: 700; margin-bottom: 6px; }
+.note-body { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.warn-line { margin-top: 8px; font-size: 12px; color: var(--amber); display: flex; align-items: center; gap: 6px; }
+
+/* ---------- Forms ---------- */
+.field { margin-bottom: 16px; }
+.input, .select {
+  width: 100%; min-height: var(--tap); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 14px; color: var(--text);
+}
+.input::placeholder { color: var(--text-faint); }
+.input:focus, .select:focus { border-color: var(--teal); }
+.field-note { margin-top: 6px; font-size: 11px; color: var(--text-muted); }
+/* iOS zooms into inputs below 16px; keep the smaller look on desktop */
+@media (max-width: 480px) and (pointer: coarse) { .input, .select { font-size: 16px; } }
+
+/* Segmented control (iOS UISegmentedControl look) */
+.segmented { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px; }
+.segmented button {
+  flex: 1; min-height: var(--tap); min-width: var(--tap); padding: 0 14px; border-radius: var(--radius-sm); border: none;
+  background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 700;
+}
+.segmented button[aria-pressed="true"], .segmented button.active { background: var(--teal); color: var(--bg); }
+.segmented.green button[aria-pressed="true"], .segmented.green button.active { background: var(--green); }
+
+/* Disclosure row (expand / collapse) */
+.disclosure {
+  width: 100%; min-height: var(--tap); display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; font-weight: 700; text-align: left;
+}
+.chevron { transition: transform .2s ease; }
+.disclosure[aria-expanded="true"] .chevron, .chevron.open { transform: rotate(180deg); }
+
+/* ---------- Choice rows (quiz answers, pickers) ---------- */
+.opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  text-align: left; width: 100%; min-height: var(--tap); padding: 12px 14px; border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--border); color: var(--text);
+  font-size: 14px; margin-bottom: 10px; transition: all .15s ease;
+}
+.opt:not(:disabled):hover { border-color: var(--teal); }
+.opt:disabled { cursor: default; }
+.opt.correct { border-color: var(--green); background: rgba(var(--green-rgb), 0.1); }
+.opt.wrong { border-color: var(--red); background: rgba(var(--red-rgb), 0.1); }
+.opt.dim { opacity: 0.45; }
+
+/* ---------- Chips and progress ---------- */
+.chip {
+  --accent-rgb: var(--green-rgb);
+  display: inline-block; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);
+  color: rgb(var(--accent-rgb)); background: rgba(var(--accent-rgb), 0.1); border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+.chip-caps { text-transform: uppercase; letter-spacing: 1px; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 12px 0 0; }
+.progress { margin-top: 12px; height: 6px; border-radius: 4px; background: var(--bg); overflow: hidden; }
+.progress > span { display: block; height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width .4s ease; }
+
+/* ---------- Tables ---------- */
+.table-wrap { margin-top: 8px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table th { text-align: left; font-weight: 500; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.table tr:last-child td { border-bottom: none; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Footer ---------- */
+.footer { text-align: center; margin-top: 40px; font-size: 10.5px; color: var(--text-faint); line-height: 1.6; }
+.footer a { color: var(--text-muted); }
+
+/* Show only on iOS Safari, where there is no install prompt */
+.ios-only { display: none; }
+@supports (-webkit-touch-callout: none) { .ios-only { display: inline; } }
+/* Pulse & Protocol app: page styles. Tokens only (see css/pulse.css). */
+
+/* Side gutter clears a landscape notch; bottom padding clears the tab bar */
+.wrap {
+  padding-left: max(var(--shell-pad), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--shell-pad), env(safe-area-inset-right, 0px));
+  padding-top: 20px;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+.min0 { min-width: 0; }
+.center { text-align: center; }
+.mono { font-variant-numeric: tabular-nums; }
+
+/* Page header */
+.page-head { margin: 4px 0 18px; }
+.page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 6px 0 4px; text-wrap: balance; line-height: 1.15; }
+.page-sub { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+.back-link {
+  display: inline-flex; align-items: center; gap: 4px; min-height: var(--tap); margin: -8px 0 0 -4px; padding: 0 6px;
+  color: var(--teal); font-size: 14px; font-weight: 700; text-decoration: none; border-radius: var(--radius-sm);
+}
+.back-link span { font-size: 22px; line-height: 1; }
+
+/* Section code tiles replace emoji icons: CV, RS, NE… */
+.code-tile { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--teal); letter-spacing: 0.5px; }
+.code-tile.accent-amber { color: var(--amber); }
+.code-tile.accent-purple { color: var(--purple); }
+.link-card .link-sub { display: block; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.link-left { min-width: 0; }
+.link-end { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.link-card.compact { padding: 12px 16px; min-height: var(--tap); margin-bottom: 8px; }
+.section-label { margin-top: 22px; }
+
+/* Chips */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.readout .chip-row { margin: 12px 0 0; }
+.accent-teal-chip { --accent-rgb: var(--teal-rgb); }
+.accent-amber-chip { --accent-rgb: var(--amber-rgb); }
+.accent-red-chip { --accent-rgb: var(--red-rgb); }
+.accent-purple-chip { --accent-rgb: var(--purple-rgb); }
+.neutral-chip { color: var(--text-muted); background: var(--bg); border-color: var(--border); }
+
+/* Progress card */
+.stat-card { margin-bottom: 18px; padding: 18px 20px; }
+.stat { margin-top: 4px; }
+.stat-right { text-align: right; }
+.stat-sm { font-size: 20px; font-weight: 700; margin-top: 8px; }
+
+/* Segmented with four options stays on one line at 320px */
+.seg-4 button { padding: 0 6px; }
+.weight-row { display: grid; grid-template-columns: 1fr 120px; gap: 8px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.input-unit { position: relative; }
+.input-unit .input { padding-right: 56px; }
+.input-unit .unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted); pointer-events: none; }
+.select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%), linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+
+/* Case presentation */
+.card + .card, .card + .readout { margin-top: 14px; }
+.vitals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 0; }
+.vitals div { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; min-width: 0; }
+.vitals dt { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.vitals dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; }
+.vitals small { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-left: 2px; }
+.body-soft { margin: 0; }
+.lead { margin-bottom: 16px; }
+
+/* Stages */
+.stage { scroll-margin-top: calc(var(--nav-h) + 16px); }
+.stage .eyebrow { margin-bottom: 10px; }
+.question { font-size: 15px; line-height: 1.5; font-weight: 700; margin: 0 0 14px; text-wrap: pretty; }
+.update-box { border-radius: var(--radius); background: rgba(var(--amber-rgb), 0.1); border: 1px solid rgba(var(--amber-rgb), 0.4); padding: 12px 14px; margin-bottom: 14px; }
+.update-box .note-title { color: var(--amber); }
+.update-box p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-soft); }
+.opt-wrap { margin-bottom: 10px; }
+.opt-wrap .opt { margin-bottom: 0; justify-content: flex-start; align-items: flex-start; line-height: 1.45; }
+.opt[aria-pressed="true"]:not(:disabled) { border-color: var(--teal); background: rgba(var(--teal-rgb), 0.12); box-shadow: inset 0 0 0 1px var(--teal); }
+.opt-letter { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; border: 1px solid var(--border); color: var(--text-muted); margin-top: -1px; }
+.opt[aria-pressed="true"] .opt-letter { background: var(--teal); border-color: var(--teal); color: var(--bg); }
+.opt.correct .opt-letter { background: var(--green); border-color: var(--green); color: var(--bg); }
+.opt.wrong .opt-letter { background: var(--red); border-color: var(--red); color: var(--bg); }
+.opt-text { flex: 1; min-width: 0; }
+.opt.dim-soft { opacity: 0.8; }
+.mark { flex-shrink: 0; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding-top: 3px; }
+.mark.ok { color: var(--green); }
+.mark.no { color: var(--red); }
+.explain { margin: 6px 0 0; padding: 0 4px 0 46px; font-size: 12.5px; line-height: 1.5; color: var(--text-muted); }
+.explain.ok { color: var(--text-soft); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+.hint { margin: 8px 0 0; }
+.result-line { margin: 4px 0 12px; font-size: 14px; font-weight: 700; }
+.result-line.ok { color: var(--green); }
+.result-line.no { color: var(--red); }
+.takeaway { margin-bottom: 14px; }
+.stage > .btn:last-child { margin-top: 4px; }
+.summary-score { margin: 10px 0 16px; }
+.summary .label { margin-top: 6px; }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; }
+.btn-row .btn { flex: 1; }
+.btn { cursor: pointer; font-family: inherit; }
+
+/* Index entry */
+.entry-sec { margin-bottom: 14px; }
+.entry-sec .section-label { margin-top: 0; }
+.dot-list { margin: 0; }
+.dot-list li { font-size: 13.5px; color: var(--text-soft); margin-bottom: 8px; }
+.dot-list li:last-child { margin-bottom: 0; }
+.dot-list li::before { top: 8px; }
+.dl-green li { --accent-rgb: var(--green-rgb); }
+.dl-red li { --accent-rgb: var(--red-rgb); }
+.empty { color: var(--text-muted); font-size: 13px; text-align: center; padding: 22px; }
+
+/* Calculators */
+.readout { margin-top: 4px; }
+.readout-num { margin-top: 10px; }
+.big-num { font-size: 44px; }
+.big-num.is-low { color: var(--red); }
+.calc-error { margin: 10px 0 0; color: var(--amber); font-size: 13.5px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 0; }
+.split dt { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.split dd { margin: 4px 0 0; font-size: 13px; color: var(--text-soft); }
+.table th[scope="row"] { width: 36%; vertical-align: top; }
+.table td { color: var(--text-soft); line-height: 1.45; }
+.excluded { margin-top: 18px; }
+.excluded p { font-size: 13px; }
+
+/* Bottom tab bar (three tabs) */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  background: var(--nav-bg); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border);
+  padding: 4px max(var(--shell-pad), env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(var(--shell-pad), env(safe-area-inset-left, 0px));
+}
+.tabbar ul { list-style: none; margin: 0 auto; padding: 0; max-width: var(--shell-w); display: grid; grid-template-columns: repeat(3, 1fr); }
+.tabbar a {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 52px; border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.2px;
+}
+.tabbar svg { width: 22px; height: 22px; }
+.tabbar a:hover, .tabbar a:active { color: var(--text); }
+.tabbar a[aria-current="page"] { color: var(--green); }
+
+.app-foot { margin-top: 28px; }
+@media (max-width: 359px) { .vitals { grid-template-columns: repeat(2, 1fr); } .weight-row { grid-template-columns: 1fr 100px; } }
+/* Pulse & Protocol v13 look: navy gradient header, soft gray page, white rounded
+   cards, coral accents, navy three-tab bar. Space Grotesk / Inter Tight / JetBrains Mono.
+   Loaded after pulse.css, components.css and app.css; it redefines the same tokens,
+   so components need no changes. Contrast checked to WCAG AA in both themes. */
+
+/* Light is the v13 default look */
+:root, :root[data-theme="light"] {
+  --bg: #F1F3F7; --surface: #FFFFFF; --border: #DFE4EC;
+  --text: #12203D; --text-soft: #2E3B57; --text-muted: #55617A; --text-faint: #606C84;
+  --coral: #C9432D; --coral-ink: #C23B26; --coral-rgb: 201, 67, 45;
+  --green: #12804A; --green-rgb: 18, 128, 74;
+  --teal: #2850B0; --teal-rgb: 40, 80, 176;          /* focus + selected: navy blue */
+  --amber: #985700; --amber-rgb: 152, 87, 0;
+  --red: #B8321E; --red-rgb: 184, 50, 30;
+  --purple: #6B3FA0; --purple-rgb: 107, 63, 160;
+  --navy-1: #0E1A3A; --navy-2: #1C3170; --on-navy: #FFFFFF; --on-navy-soft: #C6D0E8; --on-navy-muted: #A9B4CF;
+  --coral-on-navy: #FF8F7A;
+  --nav-bg: #0E1A3A; --statusbar-bg: #0E1A3A;
+  --card-shadow: 0 1px 2px rgba(14, 26, 58, 0.06), 0 6px 18px -8px rgba(14, 26, 58, 0.12);
+  --shadow: 0 10px 28px -12px rgba(14, 26, 58, 0.35);
+  --radius-lg: 20px;
+  --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #0B1430; --surface: #13204A; --border: #24345F;
+  --text: #EAF0FA; --text-soft: #C9D3E6; --text-muted: #93A1BF; --text-faint: #8794B2;
+  --coral: #FF7A63; --coral-ink: #FF8F7A; --coral-rgb: 255, 122, 99;
+  --green: #3DD68C; --green-rgb: 61, 214, 140;
+  --teal: #86A8FF; --teal-rgb: 134, 168, 255;
+  --amber: #F2B04B; --amber-rgb: 242, 176, 75;
+  --red: #FF7A68; --red-rgb: 255, 122, 104;
+  --purple: #C29BEB; --purple-rgb: 194, 155, 235;
+  --navy-1: #08102A; --navy-2: #172A62;
+  --nav-bg: #08102A; --statusbar-bg: #08102A;
+  --card-shadow: none;
+  --shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+body { font-family: var(--font-sans); background: var(--bg); }
+.page-title, .nav-brand, .big-num, .stat-sm, .link-title, .question, .display-title { font-family: var(--font-display); }
+.mono, .vitals dd, .opt-letter, .code-tile { font-family: var(--font-mono); }
+
+/* Navy header: the nav and the page heading form one gradient band */
+.site-nav { background: var(--navy-1); border-bottom: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav-brand { color: var(--on-navy); }
+.nav-brand-text > span { color: var(--coral-on-navy); }
+.site-nav .dot { background: var(--coral-on-navy); }
+.theme-toggle { color: var(--on-navy-muted); }
+.theme-toggle:hover { color: var(--on-navy); background: rgba(255, 255, 255, 0.08); }
+.offline-badge { color: var(--coral-on-navy); border-color: rgba(255, 143, 122, 0.5); }
+
+.page-head {
+  margin: -20px calc(-1 * max(var(--shell-pad), env(safe-area-inset-left, 0px))) 20px;
+  padding: 10px max(var(--shell-pad), env(safe-area-inset-left, 0px)) 26px;
+  background: linear-gradient(180deg, var(--navy-1) 0%, var(--navy-2) 100%);
+  border-radius: 0 0 26px 26px;
+  color: var(--on-navy);
+}
+.page-head .eyebrow { color: var(--on-navy-muted); }
+.page-head .page-title { color: var(--on-navy); }
+.page-head .page-sub { color: var(--on-navy-soft); }
+.page-head .back-link { color: var(--coral-on-navy); margin: 0 0 2px -6px; }
+@media (min-width: 452px) {
+  .page-head { margin-left: 0; margin-right: 0; border-radius: 0 0 26px 26px; padding-left: 20px; padding-right: 20px; }
+}
+
+/* White rounded cards on soft gray */
+.card, .readout, .link-card, .stat-card { box-shadow: var(--card-shadow); border-color: var(--border); }
+.link-card { border-radius: 18px; }
+.readout { box-shadow: var(--card-shadow); }
+.opt { background: var(--surface); }
+.card .opt, .stage .opt { background: var(--bg); }
+.vitals div { background: var(--bg); }
+
+/* Coral accents */
+.btn-primary { background: var(--coral); color: #FFFFFF; }
+:root[data-theme="dark"] .btn-primary { color: var(--navy-1); }
+.section-label, .note-title { color: var(--coral-ink); }
+.big-num { color: var(--text); }
+.big-num.is-low { color: var(--red); }
+.readout .eyebrow .dot, .summary .dot { background: var(--coral); }
+.code-tile { --accent-rgb: var(--coral-rgb); color: var(--coral-ink); }
+.code-tile.accent-amber { --accent-rgb: var(--amber-rgb); color: var(--amber); }
+.code-tile.accent-purple { --accent-rgb: var(--purple-rgb); color: var(--purple); }
+.progress > span { background: linear-gradient(90deg, var(--navy-2), var(--coral)); }
+:root[data-theme="dark"] .progress > span { background: linear-gradient(90deg, var(--teal), var(--coral)); }
+.segmented button[aria-pressed="true"] { background: var(--navy-2); color: #FFFFFF; }
+:root[data-theme="dark"] .segmented button[aria-pressed="true"] { background: var(--coral); color: var(--navy-1); }
+.back-link { color: var(--coral-ink); }
+.chip { font-family: var(--font-sans); }
+
+/* Navy three-tab bar */
+.tabbar { background: var(--navy-1); border-top: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.tabbar a { color: var(--on-navy-muted); }
+.tabbar a:hover, .tabbar a:active { color: var(--on-navy); }
+.tabbar a[aria-current="page"] { color: var(--coral-on-navy); }
+
+/* Artifact host pads :root by the safe areas, so the nav sticks below the top inset */
+.site-nav { top: env(safe-area-inset-top, 0px); padding-top: 0; background: var(--nav-bg); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--navy-1); }
+/* Review checklist: builds on the v13 tokens */
+.rv-wrap { padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+.rv-status { font-size: 12.5px; color: var(--text-muted); margin: 0 0 14px; }
+.rv-status.warn { color: var(--amber); }
+.rv-summary { margin-bottom: 18px; }
+.rv-bars { display: grid; gap: 12px; }
+.rv-bar-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; }
+.rv-bar-top span:last-child { color: var(--text-muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+.rv-track { display: flex; height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; margin-top: 6px; }
+.rv-track i { display: block; height: 100%; }
+.rv-track .a { background: var(--green); } .rv-track .f { background: var(--red); } .rv-track .s { background: var(--amber); }
+.rv-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; font-size: 11.5px; color: var(--text-muted); }
+.rv-legend b { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.rv-item { margin-bottom: 14px; border-left: 4px solid var(--border); }
+.rv-item[data-state="approved"] { border-left-color: var(--green); }
+.rv-item[data-state="flagged"] { border-left-color: var(--red); }
+.rv-item[data-state="stale"] { border-left-color: var(--amber); }
+.rv-item h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin: 6px 0 6px; line-height: 1.3; text-wrap: balance; }
+.rv-ctx { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 10px; }
+.rv-q { font-size: 14px; font-weight: 700; margin: 10px 0 8px; line-height: 1.45; }
+.rv-opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rv-opts li { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+.rv-opts li.ok { border-color: var(--green); background: rgba(var(--green-rgb), 0.08); }
+.rv-opt-t { font-size: 13.5px; font-weight: 600; display: flex; gap: 8px; }
+.rv-opt-t em { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--green); flex-shrink: 0; padding-top: 2px; }
+.rv-opt-w { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
+.rv-take { font-size: 12.5px; color: var(--text-soft); margin: 10px 0 0; }
+.rv-take b, .rv-flag b { color: var(--coral-ink); }
+.rv-flag { font-size: 12.5px; color: var(--amber); margin: 8px 0 0; line-height: 1.5; }
+.rv-sub { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--coral-ink); font-weight: 700; margin: 12px 0 6px; }
+.rv-item .dot-list li { font-size: 13px; margin-bottom: 5px; }
+.rv-item .table th[scope="row"] { width: 34%; }
+.rv-actions { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; display: grid; gap: 10px; }
+.rv-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rv-btns .btn { width: 100%; }
+.btn-approve[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--surface); }
+.btn-flag[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--surface); }
+.rv-note { width: 100%; min-height: 64px; resize: vertical; font-family: inherit; line-height: 1.45; }
+.rv-meta { font-size: 11.5px; color: var(--text-faint); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rv-meta .btn { min-height: 36px; font-size: 12px; padding: 0 12px; }
+.rv-stale { font-size: 12px; color: var(--amber); font-weight: 700; }
+.rv-saving { color: var(--text-muted); }
+.rv-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 24px; }
+@media (max-width: 360px) { .segmented button { padding: 0 6px; font-size: 11.5px; } }
+</style>
+<script>// Pulse & Protocol — light/dark theme.
+// Loaded synchronously in <head> so the right theme is applied before first
+// paint. The effective theme is always written to <html data-theme>: the
+// visitor's saved choice if they made one, otherwise the system preference.
+(function () {
+  var KEY = 'pulse-theme';
+  var root = document.documentElement;
+  var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var THEME_COLOR = { dark: '#08102A', light: '#0E1A3A' }; // v13: navy header in both themes
+
+  function saved() {
+    try { var v = localStorage.getItem(KEY); return v === 'light' || v === 'dark' ? v : null; }
+    catch (e) { return null; }
+  }
+  function store(v) {
+    try { if (v) localStorage.setItem(KEY, v); else localStorage.removeItem(KEY); } catch (e) {}
+  }
+  function system() { return media && media.matches ? 'light' : 'dark'; }
+  function current() { return saved() || system(); }
+
+  function apply() {
+    var theme = current();
+    root.setAttribute('data-theme', theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', THEME_COLOR[theme]);
+    var btn = document.querySelector('.theme-toggle');
+    if (btn) {
+      var next = theme === 'dark' ? 'light' : 'dark';
+      btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+      btn.title = 'Switch to ' + next + ' theme';
+      btn.textContent = theme === 'dark' ? '☀︎' : '☾︎'; // ☀ / ☾ (text presentation)
+    }
+  }
+
+  function toggle() {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    // Picking the system theme clears the override, so the site keeps
+    // following the OS (e.g. automatic dark mode at night).
+    store(next === system() ? null : next);
+    apply();
+  }
+
+  apply();
+  if (media) {
+    var onChange = function () { if (!saved()) apply(); };
+    if (media.addEventListener) media.addEventListener('change', onChange);
+    else if (media.addListener) media.addListener(onChange);
+  }
+  // Keep other open tabs in sync.
+  window.addEventListener('storage', function (e) { if (e.key === KEY) apply(); });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var links = document.querySelector('.site-nav .nav-links');
+    if (!links) return;
+    var li = document.createElement('li');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'theme-toggle';
+    btn.addEventListener('click', toggle);
+    li.appendChild(btn);
+    links.appendChild(li);
+    apply();
+  });
+})();
+</script>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="site-nav" aria-label="Review">
+  <div class="site-nav-inner">
+    <div class="nav-left"><span class="nav-brand"><span class="dot" aria-hidden="true"></span><span class="nav-brand-text">Pulse <span>&amp;</span> Protocol</span></span></div>
+    <ul class="nav-links"></ul>
+  </div>
+</nav>
+<main class="wrap rv-wrap" id="main" tabindex="-1">
+  <div class="page-head">
+    <div class="eyebrow">Release gate · clinician review</div>
+    <h1 class="page-title">Clinical review</h1>
+    <p class="page-sub" id="rv-sub">Approve or flag every answer key, rationale, index entry and dosing value. Decisions save for everyone with access.</p>
+  </div>
+  <div id="rv-status" class="rv-status" role="status" aria-live="polite">Connecting to saved decisions…</div>
+  <section class="card rv-summary" aria-label="Progress" id="rv-summary"></section>
+  <div class="field"><span class="label" id="rv-group-l">Section</span><div class="segmented" role="group" aria-labelledby="rv-group-l" id="rv-group"></div></div>
+  <div class="field"><span class="label" id="rv-filter-l">Show</span><div class="segmented" role="group" aria-labelledby="rv-filter-l" id="rv-filter"></div></div>
+  <div id="rv-list"></div>
+</main>
+<script>window.PP_DATA={"version":"13.1-draft","cases":[{"id":"ankle-inversion","section":"Musculoskeletal and wound","kind":"urgent","title":"Rolled ankle on the court","patient":"22-year-old man","vignette":"He rolled his right ankle inward during a pickup basketball game an hour ago. He walked in with a limp. The lateral ankle is swollen and tender just in front of the lateral malleolus. There is no tenderness along the back edge or tip of either malleolus, the base of the fifth metatarsal or the navicular. He took four steps in triage without help.","vitals":{"HR":84,"BP":"128/76","RR":16,"SpO2":99,"Temp":36.8,"Pain":"6/10"},"stages":[{"label":"Imaging","prompt":"Using the Ottawa ankle rules, does he need an ankle X-ray?","options":[{"t":"Yes. Any ankle with visible swelling needs a film.","ok":false,"why":"Swelling is not one of the criteria. The rules look only at bone tenderness at specific sites and the ability to bear weight."},{"t":"No. He has no tenderness at the defined bony sites and could take four steps.","ok":true,"why":"Correct. With no point tenderness at the posterior edge or tip of either malleolus and the ability to bear weight for four steps, the rules say an X-ray is not needed."},{"t":"Yes, because an inversion mechanism is high risk.","ok":false,"why":"Mechanism is not part of the rules. Inversion is the most common mechanism for simple sprains."},{"t":"Only if his pain score is 7 or higher.","ok":false,"why":"Pain intensity is not a criterion. A high pain score with no bony tenderness still does not meet the rules."}],"takeaway":"Ottawa ankle rules: X-ray if there is malleolar-zone pain plus bone tenderness at the posterior edge or tip of either malleolus, or inability to bear weight four steps both at injury and in the ED."},{"label":"First care","prompt":"What is the best initial nursing care?","options":[{"t":"Ice, elevation and compression, then document distal pulses, sensation and capillary refill.","ok":true,"why":"Correct. Cold and elevation limit swelling, and a neurovascular check gives a baseline before any wrap or splint."},{"t":"Apply heat to loosen the joint.","ok":false,"why":"Heat in the first 48 hours increases blood flow and swelling."},{"t":"Apply a circumferential cast.","ok":false,"why":"A rigid circumferential cast on a fresh, swelling injury risks compartment pressure, and a sprain does not need one."},{"t":"Tell him not to bear weight at all for six weeks.","ok":false,"why":"Early protected weight bearing as tolerated speeds recovery from lateral sprains. Prolonged immobilization does not."}],"takeaway":"Recheck the neurovascular status after any wrap or splint is applied."}],"related":["ottawa-ankle","neurovascular-check"],"flags":[]},{"id":"febrile-toddler","section":"Pediatrics","kind":"urgent","title":"Febrile toddler with ear pain","patient":"3-year-old girl, 15 kg","vignette":"Her father says she has had a fever since last night and keeps pulling at her right ear. She is playful in the waiting room, drinking juice and has had two wet diapers today. Immunizations are up to date. No medication has been given yet.","vitals":{"HR":132,"BP":"98/60","RR":26,"SpO2":99,"Temp":39.2,"Weight":"15 kg"},"stages":[{"label":"Antipyretic","prompt":"The provider orders acetaminophen PO by weight. Which dose is right for 15 kg?","dose_check":{"entry":"acetaminophen","weight":15},"options":[{"t":"150 mg","ok":false,"why":"That is 10 mg/kg, below the reference dose of 15 mg/kg."},{"t":"225 mg","ok":true,"why":"Correct. 15 mg/kg × 15 kg = 225 mg, under the 1000 mg single-dose cap. At 160 mg/5 mL that is about 7 mL."},{"t":"450 mg","ok":false,"why":"That is 30 mg/kg, double the reference dose. Repeated doubling is a common cause of pediatric liver injury."},{"t":"Aspirin 81 mg","ok":false,"why":"Aspirin is avoided in children with viral-type illness because of the risk of Reye syndrome."}],"takeaway":"Calculate from the reference table, then check the concentration on the bottle before converting to mL."},{"label":"Teaching","prompt":"Which discharge teaching point is most important?","options":[{"t":"Measure with the oral syringe that comes with the medicine and dose by weight, not age.","ok":true,"why":"Correct. Kitchen spoons and age-based dosing are the most common sources of home dosing errors."},{"t":"Wake her every two hours overnight to give fever medicine.","ok":false,"why":"Treating the number is not the goal. Antipyretics are for comfort, and sleep is fine if she is comfortable."},{"t":"Alternate acetaminophen and ibuprofen every two hours.","ok":false,"why":"Alternating schedules increase the risk of dosing errors and are not routinely recommended."},{"t":"Return only if the fever goes above 40 °C.","ok":false,"why":"Return precautions are about how she looks and acts: hard breathing, fewer wet diapers, hard to wake, a rash that does not blanch. A single temperature cutoff is not enough."}],"takeaway":"Ask about every product given at home. Combination cold medicines often contain acetaminophen."}],"related":["pediatric-fever","weight-based-safety"],"flags":[]},{"id":"asthma-teen","section":"Respiratory","kind":"urgent","title":"Wheezing after soccer practice","patient":"16-year-old girl","vignette":"Known asthma. She ran out of her rescue inhaler last week. She is speaking in full sentences, sitting upright, with expiratory wheeze in all fields and mild intercostal retractions.","vitals":{"HR":108,"BP":"118/72","RR":24,"SpO2":95,"Temp":37.0},"stages":[{"label":"First treatment","prompt":"What is the first-line treatment to anticipate?","options":[{"t":"Inhaled short-acting beta-agonist (albuterol) by MDI with spacer or nebulizer, with early systemic steroid.","ok":true,"why":"Correct. A SABA relieves bronchospasm within minutes, and an early steroid reduces relapse and admission."},{"t":"IV magnesium as the first drug.","ok":false,"why":"Magnesium is an add-on for severe exacerbations that do not respond to initial bronchodilators."},{"t":"Oral antibiotic.","ok":false,"why":"Most exacerbations are viral or trigger-driven. Antibiotics do not treat bronchospasm."},{"t":"Sedative to reduce anxiety.","ok":false,"why":"Sedatives suppress respiratory drive and are avoided in an acute asthma attack."}],"takeaway":"Reassess work of breathing, speech and SpO2 after each treatment."},{"label":"Reassessment","update":"Forty minutes later she is quiet and can only say two or three words at a time. The wheeze is much softer. SpO2 89%, RR 34, HR 136.","prompt":"How do you read the softer wheeze?","options":[{"t":"Improving. Less wheezing means the airways are opening.","ok":false,"why":"Less wheeze with worse speech, rising RR and falling SpO2 means less air is moving."},{"t":"Ominous. A quiet chest with fatigue suggests too little airflow. Escalate now.","ok":true,"why":"Correct. A silent or near-silent chest is a sign of impending respiratory failure. Call the provider and prepare for continuous bronchodilators, adjuncts and possible airway support."},{"t":"Anxiety. Coach slow breathing and recheck in an hour.","ok":false,"why":"Waiting an hour risks arrest. Objective signs are worsening."},{"t":"Normal post-treatment fatigue. Let her rest.","ok":false,"why":"Fatigue in a child working this hard to breathe is a red flag, not recovery."}],"takeaway":"Watch the trend in speech and mental status as much as the wheeze."}],"related":["asthma-exacerbation"],"flags":[]},{"id":"shrimp-anaphylaxis","section":"Medical emergencies","kind":"urgent","title":"Hives and a hoarse voice after dinner","patient":"29-year-old woman","vignette":"She ate shrimp at a restaurant 20 minutes ago. She has hives on her chest and arms, swollen lips, a hoarse voice and audible wheeze. She says her throat feels tight.","vitals":{"HR":118,"BP":"92/58","RR":24,"SpO2":93,"Temp":36.9},"stages":[{"label":"First drug","prompt":"Which medication comes first?","options":[{"t":"Epinephrine IM in the anterolateral thigh.","ok":true,"why":"Correct. Epinephrine is the only first-line drug. It reverses airway edema, bronchospasm and vasodilation."},{"t":"Diphenhydramine IV.","ok":false,"why":"Antihistamines help the itching and hives but do not treat airway swelling or hypotension. They are adjuncts after epinephrine."},{"t":"Methylprednisolone IV.","ok":false,"why":"Steroids take hours to work and do not treat the acute reaction. Evidence that they prevent biphasic reactions is weak."},{"t":"Nebulized albuterol alone.","ok":false,"why":"Albuterol treats bronchospasm only. It does nothing for laryngeal edema or shock."}],"takeaway":"Delayed epinephrine is the factor most often linked to fatal anaphylaxis."},{"label":"Persistent shock","update":"Five minutes after the first dose: BP 84/50, HR 126, still wheezing.","prompt":"What is the best next step?","options":[{"t":"Lay her flat with legs raised (or sitting if breathing is worse lying down), give an isotonic fluid bolus through a large-bore IV and anticipate a repeat IM epinephrine dose.","ok":true,"why":"Correct. Positioning and fluid support preload, and a repeat dose 5 to 15 minutes after the first is standard when symptoms persist."},{"t":"Help her stand and walk to the bathroom.","ok":false,"why":"Sudden upright posture during anaphylactic shock has been linked to cardiovascular collapse."},{"t":"Wait 30 minutes for the antihistamine to work.","ok":false,"why":"Antihistamines do not treat shock. Waiting delays the drug that does."},{"t":"Give a second dose of diphenhydramine.","ok":false,"why":"Repeating an adjunct does not address hypotension or airway swelling."}],"takeaway":"If she does not respond to two IM doses, anticipate an epinephrine infusion per protocol."},{"label":"Discharge","prompt":"She stabilizes. What is the key teaching before discharge?","options":[{"t":"Carry two epinephrine auto-injectors, practice using one, and know that symptoms can return hours later.","ok":true,"why":"Correct. Biphasic reactions occur in a minority of patients, and a second dose may be needed before EMS arrives."},{"t":"Oral antihistamines are enough if it happens again.","ok":false,"why":"Antihistamines do not stop progression to airway compromise or shock."},{"t":"A reaction this mild will not get worse next time.","ok":false,"why":"Severity is unpredictable from one exposure to the next."},{"t":"She can avoid shellfish by checking menus for the word 'shrimp'.","ok":false,"why":"Cross-contact and hidden ingredients are common. Avoidance teaching needs more than a single keyword."}],"takeaway":"Refer to an allergist and confirm she can show the auto-injector technique."}],"related":["anaphylaxis"],"flags":[]},{"id":"urosepsis-elder","section":"Medical emergencies","kind":"deterioration","title":"Confused and febrile from assisted living","patient":"78-year-old woman, 60 kg","vignette":"Staff say she has been more confused since yesterday and her urine smells strong. She is oriented to name only (her baseline is fully oriented). Skin is warm and flushed.","vitals":{"HR":112,"BP":"96/60","RR":24,"SpO2":94,"Temp":38.9,"Weight":"60 kg"},"stages":[{"label":"First hour","prompt":"Sepsis is suspected. Which sequence matches the first-hour bundle?","options":[{"t":"Lactate and blood cultures, broad-spectrum antibiotics, and 30 mL/kg crystalloid if hypotensive or lactate is 4 or higher.","ok":true,"why":"Correct. Cultures before antibiotics when that causes no meaningful delay, antibiotics within the hour, and fluids for hypoperfusion."},{"t":"Wait for the urinalysis before giving antibiotics.","ok":false,"why":"Each hour of delay in antibiotics for septic shock is associated with higher mortality. Do not wait for a source to be confirmed."},{"t":"Give antibiotics first and skip cultures to save time.","ok":false,"why":"Cultures should be drawn first when it does not delay antibiotics. They guide later de-escalation."},{"t":"Hold IV fluids because of her age.","ok":false,"why":"Age alone is not a reason to withhold fluids. Give the bolus and reassess for overload as you go."}],"takeaway":"Sepsis-3 qSOFA flags risk but is not recommended as a stand-alone screening tool. Use your facility's screen."},{"label":"Deterioration","update":"After 1.8 L of crystalloid: BP 82/44 (MAP 57), HR 124, lactate 4.6 mmol/L, lungs clear, more drowsy.","prompt":"What do you anticipate next?","options":[{"t":"Norepinephrine to target a MAP of 65 or higher, started peripherally if no central line yet.","ok":true,"why":"Correct. Norepinephrine is the first-line vasopressor, and current guidance suggests starting it peripherally rather than delaying for a central line."},{"t":"Another 30 mL/kg bolus without reassessing.","ok":false,"why":"Further fluid should be guided by dynamic reassessment. Persistent hypotension after the initial bolus calls for a vasopressor."},{"t":"Dopamine as the first vasopressor.","ok":false,"why":"Norepinephrine is preferred. Dopamine causes more arrhythmias."},{"t":"Wait for a central line before starting any vasopressor.","ok":false,"why":"Delaying vasopressors prolongs hypoperfusion. A large, proximal peripheral IV is acceptable short term."}],"takeaway":"Septic shock: vasopressor needed to keep MAP at 65 or above, and lactate above 2 despite adequate fluids."},{"label":"Monitoring","prompt":"Norepinephrine is running through a peripheral IV. What is the priority nursing check?","options":[{"t":"Inspect the IV site often for blanching, swelling or coolness, and know where the extravasation protocol and antidote are.","ok":true,"why":"Correct. Extravasation can cause tissue necrosis. Early detection and treatment per protocol limits injury."},{"t":"Check the site once per shift.","ok":false,"why":"Peripheral vasopressors need frequent site checks per policy, often hourly or more."},{"t":"Titrate to a systolic of 140 for a safety margin.","ok":false,"why":"Overshooting the MAP target increases vasoconstriction and arrhythmia risk without benefit."},{"t":"Stop monitoring urine output since she is on a vasopressor.","ok":false,"why":"Urine output (about 0.5 mL/kg/h or more) is a key marker of perfusion. Keep tracking it."}],"takeaway":"Trend lactate, mental status, urine output and capillary refill alongside MAP."}],"related":["sepsis","vasopressor-safety","sepsis-screening-card"],"flags":["Surviving Sepsis Campaign 2021 recommends against qSOFA alone as a screening tool, compared with SIRS, NEWS or MEWS. Older material may still teach qSOFA as the screen."]},{"id":"inferior-stemi-rv","section":"Cardiovascular","kind":"deterioration","title":"Chest pressure and a slow pulse","patient":"61-year-old man","vignette":"Crushing chest pressure for 40 minutes, sweating and nauseated. History of hypertension and smoking.","vitals":{"HR":54,"BP":"98/62","RR":20,"SpO2":95,"Temp":36.7},"stages":[{"label":"Door to ECG","prompt":"What is the goal time for the first 12-lead ECG?","options":[{"t":"Within 10 minutes of arrival.","ok":true,"why":"Correct. Early ECG starts the STEMI clock and the door-to-balloon target."},{"t":"Within 30 minutes, after labs are drawn.","ok":false,"why":"Labs should not delay the ECG. Troponin takes time; ST changes do not."},{"t":"After the provider examines him.","ok":false,"why":"Nurses can and should obtain the ECG on arrival for chest pain."},{"t":"Within an hour if pain persists.","ok":false,"why":"Every minute of delay loses heart muscle."}],"takeaway":"Door-to-balloon goal for primary PCI: 90 minutes or less."},{"label":"Nitrate order","update":"ECG: ST elevation in II, III and aVF. Right-sided leads show ST elevation in V4R. Provider orders nitroglycerin 0.4 mg SL.","prompt":"What do you do?","options":[{"t":"Hold the nitroglycerin and clarify the order, because of probable right ventricular infarction.","ok":true,"why":"Correct. An infarcted right ventricle depends on preload. Nitrates drop preload and can cause severe hypotension."},{"t":"Give the nitroglycerin as ordered. It relieves ischemic pain.","ok":false,"why":"Nitrates are relatively contraindicated in RV infarction and with SBP under 90 or marked bradycardia."},{"t":"Give morphine instead.","ok":false,"why":"Morphine also lowers preload and can mask ongoing ischemia. It is not a safe substitute here."},{"t":"Give furosemide to unload the heart.","ok":false,"why":"Diuresis worsens the preload problem in RV infarction."}],"takeaway":"Inferior STEMI: get right-sided leads before giving nitrates."},{"label":"Hypotension","update":"BP falls to 84/50. Lungs are clear. HR 50.","prompt":"What do you anticipate?","options":[{"t":"An IV fluid bolus to support preload, and ongoing preparation for the cath lab.","ok":true,"why":"Correct. With clear lungs, volume supports RV output while reperfusion is arranged."},{"t":"Fluid restriction to protect the lungs.","ok":false,"why":"Clear lungs and RV involvement favor careful volume loading, not restriction."},{"t":"A beta-blocker to slow the heart further.","ok":false,"why":"He is bradycardic and hypotensive. A beta-blocker could cause collapse."},{"t":"Cancel the cath lab until BP improves.","ok":false,"why":"Reperfusion is the definitive treatment and should not be delayed."}],"takeaway":"Watch for heart block with inferior MI, and have pacing available."}],"related":["acs-stemi","ecg-leads"],"flags":[]},{"id":"dka-young-adult","section":"Medical emergencies","kind":"deterioration","title":"Vomiting and deep breathing","patient":"19-year-old woman, type 1 diabetes","vignette":"Two days of vomiting and abdominal pain. She ran out of insulin. Breathing is deep and fast with a fruity odor. Labs: glucose 486 mg/dL, pH 7.12, bicarbonate 9 mEq/L, anion gap 26, potassium 3.1 mEq/L.","vitals":{"HR":124,"BP":"104/66","RR":30,"SpO2":99,"Temp":37.2},"stages":[{"label":"Before insulin","prompt":"Fluids are running. An insulin infusion is ordered. What do you do first?","options":[{"t":"Replace potassium and hold insulin until potassium is at least 3.3 mEq/L.","ok":true,"why":"Correct. Insulin drives potassium into cells. Starting it at 3.1 can cause dangerous hypokalemia and arrhythmia."},{"t":"Start the insulin infusion now. Glucose is the emergency.","ok":false,"why":"Glucose is not the immediate threat. Hypokalemia from insulin is."},{"t":"Give sodium bicarbonate for the low pH.","ok":false,"why":"Bicarbonate is reserved for severe acidosis (pH below about 7.0) and can worsen hypokalemia."},{"t":"Give a large insulin bolus to close the gap quickly.","ok":false,"why":"Rapid correction increases the risk of hypokalemia and, in younger patients, cerebral edema."}],"takeaway":"Check potassium before insulin and recheck it every 1 to 2 hours."},{"label":"Glucose falling","update":"Five hours later: glucose 238 mg/dL, anion gap 18, potassium 4.0.","prompt":"What change do you anticipate?","options":[{"t":"Add dextrose to the IV fluids and continue insulin until the gap closes.","ok":true,"why":"Correct. Insulin is what clears ketones. Dextrose lets it keep running without hypoglycemia."},{"t":"Stop insulin because glucose is near normal.","ok":false,"why":"Stopping insulin while the gap is open lets ketoacidosis return."},{"t":"Increase insulin to bring glucose to 100.","ok":false,"why":"The target is closing the gap, not normal glucose. Faster drops risk hypoglycemia."},{"t":"Switch to oral fluids and discharge.","ok":false,"why":"She is still acidotic. Resolution criteria are not met."}],"takeaway":"Treat the gap, not the glucose."},{"label":"Transition","prompt":"The gap has closed and she is eating. How is the drip stopped?","options":[{"t":"Give subcutaneous basal insulin 1 to 2 hours before stopping the infusion.","ok":true,"why":"Correct. The overlap prevents rebound ketosis, since IV insulin wears off within minutes."},{"t":"Stop the drip, then give subcutaneous insulin at the next meal.","ok":false,"why":"The gap in coverage can restart ketosis."},{"t":"Stop the drip and recheck glucose in the morning.","ok":false,"why":"No insulin coverage risks rapid recurrence."},{"t":"Keep the drip running until discharge.","ok":false,"why":"Once criteria are met and she is eating, she should transition to subcutaneous insulin."}],"takeaway":"Teach sick-day rules and how to get insulin when supply runs out."}],"related":["dka","potassium"],"flags":["DKA thresholds were revised in the 2024 ADA/EASD/JBDS/AACE/DTS consensus. Check that older materials do not conflict with it."]},{"id":"anticoag-head-injury","section":"Neurological","kind":"deterioration","title":"Fell off a ladder, on a blood thinner","patient":"45-year-old man","vignette":"He fell about two meters from a ladder and hit his head. He had a brief loss of consciousness. He now answers questions appropriately and moves all limbs. He takes apixaban for atrial fibrillation.","vitals":{"HR":78,"BP":"142/84","RR":16,"SpO2":98,"Temp":36.6},"stages":[{"label":"Risk","prompt":"He looks well. What is the priority?","options":[{"t":"Expedite a head CT. Anticoagulant use is a high-risk feature even when he looks well.","ok":true,"why":"Correct. Anticoagulated patients can bleed with few early signs, and delayed hemorrhage is a known risk."},{"t":"Discharge with a head-injury sheet if neuro checks stay normal for an hour.","ok":false,"why":"Anticoagulation changes the risk. A normal early exam does not rule out bleeding."},{"t":"Hold imaging until he develops symptoms.","ok":false,"why":"Waiting for symptoms means intervening after the bleed has expanded."},{"t":"Give acetaminophen and reassess in four hours.","ok":false,"why":"Pain control is fine, but it does not address the risk of intracranial hemorrhage."}],"takeaway":"Ask about anticoagulants and antiplatelets for every head injury."},{"label":"Change in status","update":"Forty minutes later, before CT: worsening headache, two episodes of vomiting, the right pupil is larger and sluggish, BP 178/90, HR 52, irregular breathing.","prompt":"What do you do?","options":[{"t":"Notify the provider now, raise the head of the bed to 30°, protect the airway and prepare for anticoagulant reversal and neurosurgery.","ok":true,"why":"Correct. Hypertension, bradycardia and irregular breathing (Cushing triad) plus a new pupil change suggest rising intracranial pressure and possible herniation."},{"t":"Give an antiemetic and recheck in an hour.","ok":false,"why":"Vomiting here is a sign of rising pressure. An hour's delay can be fatal."},{"t":"Give an antihypertensive to bring BP to normal.","ok":false,"why":"The hypertension may be maintaining cerebral perfusion. Blood pressure goals are set by the provider for this situation."},{"t":"Lay him flat to improve blood flow to the brain.","ok":false,"why":"Flat positioning reduces venous drainage and can raise intracranial pressure."}],"takeaway":"A pupil change plus Cushing triad is an emergency. Do not wait for imaging to escalate."}],"related":["head-injury","neuro-checks-card"],"flags":[]}],"index":[{"id":"sepsis","title":"Sepsis and septic shock","kind":"topic","category":"Medical emergencies","summary":"Life-threatening organ dysfunction from a dysregulated response to infection. Shock is sepsis that needs a vasopressor to keep MAP at 65 or above with lactate above 2 despite fluids.","assess":["New confusion or change from baseline","Fever or hypothermia","Tachycardia and tachypnea","Hypotension, mottling, delayed capillary refill","Low urine output"],"interventions":["Draw lactate and blood cultures before antibiotics if no delay","Broad-spectrum antibiotics within one hour","30 mL/kg crystalloid for hypotension or lactate of 4 or more","Norepinephrine for MAP under 65 after fluids","Repeat lactate if the first is elevated","Track urine output, about 0.5 mL/kg/h or more"],"pitfalls":["Older adults may not mount a fever","Do not delay antibiotics for imaging or the urinalysis"],"flags":["Surviving Sepsis Campaign 2021 advises against qSOFA alone as a screening tool."]},{"id":"vasopressor-safety","title":"Peripheral vasopressor safety","kind":"topic","category":"Medical emergencies","summary":"Short-term peripheral norepinephrine is acceptable when it avoids delay, with close site monitoring.","assess":["IV site color, temperature, swelling","Blood pressure and MAP trend","Heart rhythm"],"interventions":["Use a large, proximal vein, ideally antecubital or above","Confirm blood return before starting","Check the site often per policy","Know the extravasation protocol and where the antidote is kept","Use a dedicated line, no bolus meds through it"],"pitfalls":["Do not titrate beyond the MAP goal"],"flags":[]},{"id":"anaphylaxis","title":"Anaphylaxis","kind":"topic","category":"Medical emergencies","summary":"Rapid-onset, potentially fatal allergic reaction involving the skin, airway, breathing or circulation.","assess":["Hives, flushing, lip or tongue swelling","Hoarse voice, stridor, throat tightness","Wheeze, low SpO2","Hypotension, syncope","Vomiting, abdominal cramping"],"interventions":["IM epinephrine in the anterolateral thigh first","Lay flat with legs up, or sitting if breathing is worse lying down","High-flow oxygen and a large-bore IV","Fluid bolus for hypotension","Repeat IM epinephrine in 5 to 15 min if needed","Antihistamines and steroids are adjuncts only"],"pitfalls":["Skin signs are absent in a minority of cases","Never sit or stand a hypotensive patient up suddenly"],"flags":[]},{"id":"acs-stemi","title":"Acute coronary syndrome and STEMI","kind":"topic","category":"Cardiovascular","summary":"Myocardial ischemia from coronary occlusion. STEMI needs emergency reperfusion.","assess":["Chest pressure, radiation to the arm or jaw","Diaphoresis, nausea, dyspnea","Atypical presentations in women, older adults and people with diabetes","ECG within 10 minutes of arrival"],"interventions":["Continuous cardiac monitoring","Aspirin unless contraindicated","Oxygen only if SpO2 is under 90%","Right-sided leads for inferior STEMI before nitrates","Prepare for the cath lab, door-to-balloon 90 minutes or less"],"pitfalls":["Nitrates are dangerous in RV infarction, with SBP under 90, or after recent PDE-5 inhibitor use"],"flags":[]},{"id":"ecg-leads","title":"ECG lead territories","kind":"card","category":"Cardiovascular","summary":"Which leads look at which part of the heart.","assess":["Inferior: II, III, aVF (usually right coronary artery)","Lateral: I, aVL, V5, V6","Anterior: V3, V4","Septal: V1, V2","Right ventricle: V4R"],"interventions":["Obtain right-sided leads for any inferior STEMI","Compare with prior ECGs","Repeat the ECG if symptoms change"],"pitfalls":[],"flags":[]},{"id":"asthma-exacerbation","title":"Asthma exacerbation","kind":"topic","category":"Respiratory","summary":"Acute bronchospasm, airway inflammation and mucus plugging.","assess":["Speech: sentences, phrases or words","Accessory muscle use, retractions","Wheeze, or a quiet chest","SpO2 and respiratory rate trend","Mental status and fatigue"],"interventions":["Inhaled SABA, repeated or continuous","Ipratropium in moderate to severe attacks","Early systemic steroid","Oxygen to keep SpO2 at about 93 to 95%","Escalate early for a silent chest or drowsiness"],"pitfalls":["A quieter wheeze can mean less airflow, not improvement","Avoid sedatives"],"flags":[]},{"id":"dka","title":"Diabetic ketoacidosis","kind":"topic","category":"Medical emergencies","summary":"Insulin deficiency causing hyperglycemia, ketosis and an anion-gap metabolic acidosis.","assess":["Kussmaul breathing, fruity breath","Vomiting, abdominal pain","Dehydration","Glucose, pH, bicarbonate, anion gap, potassium"],"interventions":["Isotonic fluids first","Check potassium before insulin; hold insulin if below 3.3","Continuous insulin infusion","Add dextrose when glucose falls to about 250","Continue insulin until the gap closes","Overlap SC basal insulin 1 to 2 h before stopping the drip"],"pitfalls":["Do not stop insulin because glucose looks normal","Watch younger patients for headache or behavior change (cerebral edema)"],"flags":["2024 international consensus revised DKA definitions and thresholds."]},{"id":"potassium","title":"Potassium disorders","kind":"topic","category":"Medical emergencies","summary":"Both high and low potassium can cause fatal arrhythmias.","assess":["Low: weakness, cramps, flattened T waves, U waves","High: weakness, peaked T waves, wide QRS","Cardiac monitor","Renal function and medications"],"interventions":["Never give IV potassium as a push","Follow facility limits for peripheral infusion rate","Recheck levels per protocol","In hyperkalemia, anticipate calcium for membrane stabilization first"],"pitfalls":["Hemolyzed samples can falsely raise potassium"],"flags":[]},{"id":"head-injury","title":"Traumatic brain injury","kind":"topic","category":"Neurological","summary":"Injury ranging from concussion to expanding hemorrhage.","assess":["Level of consciousness and orientation","Pupil size and reaction","Motor strength and symmetry","Anticoagulant or antiplatelet use","Vomiting, worsening headache, seizure"],"interventions":["Frequent neuro checks, documenting trends","Head of bed at 30° unless contraindicated","Expedite CT for high-risk features","Prepare anticoagulant reversal per protocol","Escalate at once for a pupil change or Cushing triad"],"pitfalls":["A lucid interval can precede rapid decline","Do not lower BP without provider direction when ICP is suspected"],"flags":[]},{"id":"neuro-checks-card","title":"Level of consciousness reference","kind":"card","category":"Neurological","summary":"Descriptive reference for documenting neurological status without a licensed scoring tool.","assess":["Eye opening: spontaneous, to voice, to pressure, none","Verbal: oriented, confused, words only, sounds only, none","Motor: obeys, localizes, withdraws, abnormal posturing, none","Pupils: size in mm, shape, reaction, equality"],"interventions":["Document the exact stimulus used","Compare with the previous check, not only the baseline","Report any decline right away"],"pitfalls":[],"flags":[]},{"id":"ottawa-ankle","title":"Ottawa ankle and foot rules","kind":"card","category":"Musculoskeletal and wound","summary":"Decision rule for imaging after ankle or midfoot injury.","assess":["Bone tenderness at the posterior edge or tip of the lateral malleolus","Bone tenderness at the posterior edge or tip of the medial malleolus","Bone tenderness at the base of the fifth metatarsal or the navicular","Unable to bear weight four steps at injury and in the ED"],"interventions":["Ankle X-ray if malleolar-zone pain plus either malleolar criterion or the weight-bearing criterion","Foot X-ray if midfoot pain plus either foot criterion or the weight-bearing criterion"],"pitfalls":["Does not apply to intoxicated patients, multiple injuries or reduced sensation"],"flags":[]},{"id":"neurovascular-check","title":"Neurovascular assessment","kind":"topic","category":"Musculoskeletal and wound","summary":"Checking circulation, sensation and movement distal to an injury.","assess":["Pain out of proportion, pain on passive stretch","Pallor, cool skin, capillary refill","Pulses distal to the injury","Numbness or tingling","Ability to move fingers or toes"],"interventions":["Document a baseline before splinting","Recheck after any splint, cast or wrap","Loosen dressings and escalate for worsening findings","Elevate to heart level if compartment syndrome is suspected, not above"],"pitfalls":["Pulses can remain present in compartment syndrome"],"flags":[]},{"id":"pediatric-fever","title":"Fever in children","kind":"topic","category":"Pediatrics","summary":"Most fevers in well-appearing, immunized children are viral. Appearance matters more than the number.","assess":["Activity, color, interaction","Hydration: wet diapers, tears, mucous membranes","Work of breathing","Rash, especially one that does not blanch","Age under 3 months needs provider evaluation"],"interventions":["Weight-based antipyretics from the reference table","Measure with an oral syringe","Encourage fluids","Clear return precautions"],"pitfalls":["Avoid aspirin in children","Watch for duplicate acetaminophen in combination products"],"flags":[]},{"id":"weight-based-safety","title":"Weight-based dosing safety","kind":"topic","category":"Pediatrics","summary":"Most pediatric medication errors involve weight, units or concentration.","assess":["Weight in kilograms, measured not estimated where possible","Allergies","Product concentration"],"interventions":["Record weight in kg only","Calculate from the vetted reference table","Check that the dose does not exceed the adult maximum","Independent double-check for high-alert drugs","Convert to volume using the actual product concentration"],"pitfalls":["Pounds entered as kilograms more than doubles the dose"],"flags":[]},{"id":"sepsis-screening-card","title":"Sepsis screening tools","kind":"card","category":"Medical emergencies","summary":"Descriptive comparison of common screens. Use the one your facility has adopted.","assess":["SIRS: temperature, heart rate, respiratory rate and white count criteria","qSOFA: altered mentation, respiratory rate, systolic BP","NEWS-type early-warning scores: weighted vital-sign scores"],"interventions":["Screen at triage and with any change in condition","A positive screen starts the facility sepsis pathway"],"pitfalls":[],"flags":["SSC 2021 recommends against qSOFA alone as a single screening tool."]},{"id":"esi-card","title":"Emergency Severity Index (descriptive)","kind":"card","category":"Triage","summary":"Five-level triage algorithm. Described here without the licensed handbook content.","assess":["Level 1: needs an immediate life-saving intervention","Level 2: high-risk situation, new confusion or lethargy, or severe pain or distress","Levels 3 to 5: sorted by the number of different resources expected"],"interventions":["Reassess while patients wait","Up-triage for danger-zone vital signs per your facility's version"],"pitfalls":[],"flags":["ESI v4 and v5 handbooks differ in some definitions. Confirm which version your ED uses before teaching or testing triage levels."]}],"dosing":[{"id":"epi-arrest","drug":"Epinephrine","indication":"Pulseless arrest","route":"IV/IO","per_kg":0.01,"unit":"mg","max_dose":1,"conc":0.1,"conc_label":"0.1 mg/mL","repeat":"Every 3 to 5 min during arrest","min_kg":0,"age_note":"All ages; adult dose is the cap.","source":"AHA PALS 2020 (transcribed)","notes":"Check the concentration on the syringe; two strengths are stocked.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"epi-anaphylaxis","drug":"Epinephrine","indication":"Anaphylaxis","route":"IM, anterolateral thigh","per_kg":0.01,"unit":"mg","max_dose":0.5,"conc":1,"conc_label":"1 mg/mL","repeat":"Every 5 to 15 min if no response","min_kg":0,"age_note":"Many pediatric protocols cap a child at 0.3 mg. Age-banding review needed.","source":"WAO 2020 / AHA (transcribed)","notes":"IM, not IV push, outside of arrest.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"amiodarone-arrest","drug":"Amiodarone","indication":"Pulseless VF / pVT","route":"IV/IO bolus","per_kg":5,"unit":"mg","max_dose":300,"conc":50,"conc_label":"50 mg/mL","repeat":"May repeat up to 3 total doses (pediatric)","min_kg":0,"age_note":"Adult first dose is 300 mg.","source":"AHA PALS 2020 (transcribed)","notes":"","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"adenosine","drug":"Adenosine","indication":"SVT, first dose","route":"Rapid IV push with flush","per_kg":0.1,"unit":"mg","max_dose":6,"conc":3,"conc_label":"3 mg/mL","repeat":"Second dose 0.2 mg/kg, max 12 mg","min_kg":0,"age_note":"","source":"AHA PALS 2020 (transcribed)","notes":"Use the port closest to the heart. Expect brief asystole.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"atropine-brady","drug":"Atropine","indication":"Bradycardia (vagal or AV block)","route":"IV/IO","per_kg":0.02,"unit":"mg","max_dose":0.5,"conc":0.1,"conc_label":"0.1 mg/mL","repeat":"May repeat once","min_kg":0,"age_note":"Older PALS editions listed a 0.1 mg minimum dose. Flag: version conflict.","source":"AHA PALS 2020 (transcribed)","notes":"","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"naloxone","drug":"Naloxone","indication":"Opioid toxicity, full reversal","route":"IV/IO/IM","per_kg":0.1,"unit":"mg","max_dose":2,"conc":0.4,"conc_label":"0.4 mg/mL","repeat":"Every 2 to 3 min as needed","min_kg":0,"age_note":"Lower titrated doses are used when the goal is breathing, not full reversal.","source":"AHA PALS 2020 (transcribed)","notes":"Watch for re-sedation; naloxone wears off before many opioids.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"lorazepam","drug":"Lorazepam","indication":"Status epilepticus","route":"IV","per_kg":0.1,"unit":"mg","max_dose":4,"conc":2,"conc_label":"2 mg/mL","repeat":"May repeat once after 5 to 10 min","min_kg":0,"age_note":"","source":"AES 2016 guideline (transcribed)","notes":"Have bag-valve-mask ready. Respiratory depression risk.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"dextrose-d10","drug":"Dextrose 10%","indication":"Hypoglycemia","route":"IV/IO","per_kg":0.5,"unit":"g","max_dose":25,"conc":0.1,"conc_label":"0.1 g/mL (D10)","repeat":"Recheck glucose in 15 min","min_kg":0,"age_note":"D10 preferred in children; concentrations above D25 are avoided peripherally in kids.","source":"AHA PALS 2020 (transcribed)","notes":"0.5 g/kg of D10 is 5 mL/kg.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"ondansetron","drug":"Ondansetron","indication":"Nausea and vomiting","route":"IV/PO","per_kg":0.15,"unit":"mg","max_dose":4,"conc":2,"conc_label":"2 mg/mL (IV)","repeat":"Every 8 h as needed","min_kg":8,"age_note":"Typically 6 months and older. Age-banding review needed.","source":"Common ED reference (transcribed)","notes":"QT prolongation risk.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"acetaminophen","drug":"Acetaminophen","indication":"Fever or pain","route":"PO","per_kg":15,"unit":"mg","max_dose":1000,"conc":32,"conc_label":"160 mg/5 mL","repeat":"Every 4 to 6 h, max 5 doses in 24 h","min_kg":0,"age_note":"Under 12 weeks: provider evaluation for fever before dosing.","source":"Common pediatric reference (transcribed)","notes":"Check combination cold products for hidden acetaminophen.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"ibuprofen","drug":"Ibuprofen","indication":"Fever or pain","route":"PO","per_kg":10,"unit":"mg","max_dose":400,"conc":20,"conc_label":"100 mg/5 mL","repeat":"Every 6 to 8 h","min_kg":5,"age_note":"6 months and older only. Avoid in dehydration.","source":"Common pediatric reference (transcribed)","notes":"Give with food.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"},{"id":"ns-bolus","drug":"Isotonic crystalloid","indication":"Shock, fluid bolus","route":"IV/IO","per_kg":20,"unit":"mL","max_dose":1000,"conc":null,"conc_label":"","repeat":"Reassess after each bolus","min_kg":0,"age_note":"PALS 2020 lists 10 to 20 mL/kg. Use 10 mL/kg in suspected cardiogenic shock or DKA. Flag: version conflict.","source":"AHA PALS 2020 (transcribed)","notes":"Reassess lungs and liver edge after each bolus.","verified":false,"signoff":null,"provenance":"Transcribed by Claude, not yet checked against a formulary"}],"excluded":[{"drug":"Heparin","reason":"Weight-based nomograms vary by site. Use your facility's protocol; this app will not calculate it."}]};
+</script>
+<script>// Clinical review checklist. Decisions live in the artifact's shared db
+// (collection "reviews", one doc per item) so Claude can read them back.
+(function () {
+  'use strict';
+  var D = window.PP_DATA;
+  var $ = function (id) { return document.getElementById(id); };
+  function h(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // FNV-1a fingerprint of an item's content: an approval goes stale when content changes.
+  function fp(obj) {
+    var s = JSON.stringify(obj), x = 0x811c9dc5;
+    for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193) >>> 0; }
+    return ('0000000' + x.toString(16)).slice(-8);
+  }
+
+  // ---------- items ----------
+  var items = [];
+  D.cases.forEach(function (c) {
+    c.stages.forEach(function (s, i) {
+      items.push({ key: 'case--' + c.id + '--' + i, group: 'cases', c: c, s: s, i: i, hash: fp({ v: c.vignette, vit: c.vitals, s: s, f: c.flags }),
+        title: c.title + ' · stage ' + (i + 1) + ' of ' + c.stages.length });
+    });
+  });
+  D.index.forEach(function (e) { items.push({ key: 'index--' + e.id, group: 'index', e: e, hash: fp(e), title: e.title }); });
+  D.dosing.forEach(function (d) {
+    var core = {}; Object.keys(d).forEach(function (k) { if (k !== 'verified' && k !== 'signoff' && k !== 'provenance') core[k] = d[k]; });
+    items.push({ key: 'dose--' + d.id, group: 'dosing', d: d, hash: fp(core), title: d.drug + ' · ' + d.indication });
+  });
+  var GROUPS = [['cases', 'Answer keys'], ['index', 'Index'], ['dosing', 'Dosing']];
+
+  // ---------- state ----------
+  var decisions = {}, db = null, user = null, myId = null, names = {};
+  var group = 'cases', filter = 'all';
+  function state(it) {
+    var d = decisions[it.key];
+    if (!d || !d.status) return 'pending';
+    if (d.hash !== it.hash) return 'stale';
+    return d.status;
+  }
+
+  // ---------- content rendering ----------
+  function body(it) {
+    if (it.group === 'cases') {
+      var c = it.c, s = it.s, html = '';
+      html += '<p class="rv-ctx">' + h(c.patient) + ' · ' + (c.kind === 'deterioration' ? 'Deterioration' : 'Urgent care') + ' · ' + h(c.section) + '</p>';
+      if (it.i === 0) html += '<p class="rv-ctx">' + h(c.vignette) + '</p>';
+      if (s.update) html += '<p class="rv-ctx"><b>New findings:</b> ' + h(s.update) + '</p>';
+      html += '<p class="rv-q">' + h(s.prompt) + '</p><ul class="rv-opts">' + s.options.map(function (o) {
+        return '<li class="' + (o.ok ? 'ok' : '') + '"><div class="rv-opt-t">' + (o.ok ? '<em>Key</em>' : '') + '<span>' + h(o.t) + '</span></div><div class="rv-opt-w">' + h(o.why) + '</div></li>';
+      }).join('') + '</ul>';
+      html += '<p class="rv-take"><b>Takeaway.</b> ' + h(s.takeaway) + '</p>';
+      if (it.i === c.stages.length - 1) html += c.flags.map(function (f) { return '<p class="rv-flag">⚠︎ ' + h(f) + '</p>'; }).join('');
+      return html;
+    }
+    if (it.group === 'index') {
+      var e = it.e;
+      var list = function (t, xs) { return xs.length ? '<div class="rv-sub">' + t + '</div><ul class="dot-list">' + xs.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul>' : ''; };
+      return '<p class="rv-ctx">' + (e.kind === 'card' ? 'Descriptive reference card' : 'Topic') + ' · ' + h(e.category) + '</p>' +
+        '<p class="rv-ctx" style="color:var(--text-soft)">' + h(e.summary) + '</p>' +
+        list(e.kind === 'card' ? 'Criteria' : 'Assess', e.assess) + list(e.kind === 'card' ? 'How to use it' : 'Nursing interventions', e.interventions) +
+        list('Pitfalls', e.pitfalls) + e.flags.map(function (f) { return '<p class="rv-flag">⚠︎ ' + h(f) + '</p>'; }).join('');
+    }
+    var d = it.d;
+    var rows = [['Dose', d.per_kg + ' ' + d.unit + '/kg'], ['Max single dose', d.max_dose + ' ' + d.unit], ['Route', d.route], ['Concentration', d.conc_label || '—'],
+      ['Repeat', d.repeat], ['Min weight', d.min_kg ? d.min_kg + ' kg' : '—'], ['Age notes', d.age_note || '—'], ['Notes', d.notes || '—'], ['Source', d.source]];
+    return '<p class="rv-ctx">' + h(d.provenance) + '</p><div class="table-wrap"><table class="table"><tbody>' +
+      rows.map(function (r) { return '<tr><th scope="row">' + h(r[0]) + '</th><td>' + h(r[1]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+
+  function card(it) {
+    var st = state(it);
+    return '<article class="card rv-item" id="it-' + it.key + '" data-state="' + st + '">' +
+      '<div class="eyebrow">' + (it.group === 'cases' ? h(it.s.label) : it.group === 'index' ? 'Index entry' : 'Dosing entry') + '</div>' +
+      '<h3>' + h(it.title) + '</h3>' + body(it) +
+      '<div class="rv-actions" data-key="' + it.key + '">' +
+      '<div class="rv-btns"><button type="button" class="btn btn-ghost btn-approve" data-act="approved">Approve</button>' +
+      '<button type="button" class="btn btn-ghost btn-flag" data-act="flagged">Flag</button></div>' +
+      '<label class="visually-hidden" for="note-' + it.key + '">Note for ' + h(it.title) + '</label>' +
+      '<textarea class="input rv-note" id="note-' + it.key + '" placeholder="What needs to change? (optional for approvals)"></textarea>' +
+      '<div class="rv-meta"><span class="rv-who"></span><button type="button" class="btn btn-ghost" data-act="note">Save note</button></div></div></article>';
+  }
+
+  function paintActions(it) {
+    var el = document.querySelector('.rv-actions[data-key="' + it.key + '"]');
+    if (!el) return;
+    var st = state(it), d = decisions[it.key];
+    el.parentNode.setAttribute('data-state', st);
+    el.querySelectorAll('[data-act="approved"],[data-act="flagged"]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(d && d.status === b.getAttribute('data-act') && st !== 'stale'));
+      b.disabled = !db;
+    });
+    el.querySelector('[data-act="note"]').disabled = !db;
+    var ta = el.querySelector('textarea');
+    if (document.activeElement !== ta && !ta.dataset.dirty) ta.value = (d && d.note) || '';
+    ta.disabled = !db;
+    var who = el.querySelector('.rv-who');
+    if (st === 'stale') who.innerHTML = '<span class="rv-stale">Content changed since this was ' + h(d.status) + '. Review again.</span>';
+    else if (d && d.status) {
+      var nm = d.by === myId ? 'you' : ((names[d.by] && names[d.by].name) || 'a reviewer');
+      who.textContent = (d.status === 'approved' ? 'Approved' : 'Flagged') + ' by ' + nm + (d.at ? ' · ' + new Date(d.at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '');
+    } else who.textContent = 'Not reviewed yet';
+  }
+
+  // ---------- summary + list ----------
+  function counts(list) {
+    var n = { approved: 0, flagged: 0, stale: 0, pending: 0 };
+    list.forEach(function (it) { n[state(it)]++; });
+    return n;
+  }
+  function renderSummary() {
+    var all = counts(items);
+    var html = '<div class="row"><div><div class="label">Approved</div><span class="big-num">' + all.approved + '</span><span class="big-unit">/ ' + items.length + '</span></div>' +
+      '<div style="text-align:right"><div class="label">Flagged</div><span class="big-num" style="font-size:28px;color:' + (all.flagged ? 'var(--red)' : 'var(--text)') + '">' + all.flagged + '</span></div></div><div class="rv-bars" style="margin-top:14px">';
+    GROUPS.forEach(function (g) {
+      var list = items.filter(function (it) { return it.group === g[0]; }), n = counts(list), t = list.length;
+      var pct = function (x) { return (x / t * 100).toFixed(2) + '%'; };
+      html += '<div><div class="rv-bar-top"><span>' + g[1] + '</span><span>' + n.approved + ' of ' + t + ' approved</span></div>' +
+        '<div class="rv-track" aria-hidden="true"><i class="a" style="width:' + pct(n.approved) + '"></i><i class="f" style="width:' + pct(n.flagged) + '"></i><i class="s" style="width:' + pct(n.stale) + '"></i></div></div>';
+    });
+    html += '</div><div class="rv-legend"><span><b style="background:var(--green)"></b>Approved</span><span><b style="background:var(--red)"></b>Flagged</span><span><b style="background:var(--amber)"></b>Changed, review again</span><span><b style="background:var(--bg);border:1px solid var(--border)"></b>Not reviewed</span></div>';
+    $('rv-summary').innerHTML = html;
+  }
+  function seg(el, opts, cur, onPick, attr) {
+    el.innerHTML = opts.map(function (o) { return '<button type="button" ' + attr + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + '</button>'; }).join('');
+    el.querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { onPick(b.getAttribute(attr)); }); });
+  }
+  function renderControls() {
+    seg($('rv-group'), GROUPS, group, function (v) { group = v; renderControls(); renderList(); }, 'data-g');
+    seg($('rv-filter'), [['all', 'All'], ['todo', 'To review'], ['flagged', 'Flagged'], ['approved', 'Approved']], filter,
+      function (v) { filter = v; renderControls(); renderList(); }, 'data-f');
+  }
+  function renderList() {
+    var list = items.filter(function (it) {
+      if (it.group !== group) return false;
+      var st = state(it);
+      return filter === 'all' || (filter === 'todo' && (st === 'pending' || st === 'stale')) || st === filter;
+    });
+    $('rv-list').innerHTML = list.length ? list.map(card).join('') : '<div class="card-dashed rv-empty">Nothing here for this filter.</div>';
+    list.forEach(paintActions);
+  }
+
+  // ---------- writes ----------
+  function save(key, status) {
+    var it = items.filter(function (x) { return x.key === key; })[0];
+    var el = document.querySelector('.rv-actions[data-key="' + key + '"]');
+    var ta = el.querySelector('textarea'), prev = decisions[key] || {};
+    var doc = { status: status || prev.status || null, note: ta.value.trim(), hash: status ? it.hash : (prev.hash || null),
+      by: myId, at: Date.now(), group: it.group, title: it.title };
+    if (!status && !prev.status) doc.status = null;
+    if (status === 'flagged' && !doc.note) { ta.focus(); setStatus('Add a note saying what needs to change, then press Flag again.', true); return; }
+    var who = el.querySelector('.rv-who'); who.innerHTML = '<span class="rv-saving">Saving…</span>';
+    db.collection('reviews').doc(key).set(doc).then(function () {
+      delete ta.dataset.dirty; decisions[key] = doc; paintActions(it); renderSummary(); setStatus(statusLine());
+    }).catch(function (e) {
+      var msg = e && e.code === 'quota_exceeded' ? 'Storage is full for this page.' : e && e.code === 'unavailable' ? 'Connection dropped. Try again in a moment.' : 'Could not save. You may only have view access to this page.';
+      setStatus(msg, true); paintActions(it);
+    });
+  }
+  $('rv-list').addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-act]'); if (!b || !db) return;
+    var key = b.closest('.rv-actions').getAttribute('data-key'), act = b.getAttribute('data-act');
+    save(key, act === 'note' ? null : act);
+  });
+  $('rv-list').addEventListener('input', function (ev) { if (ev.target.tagName === 'TEXTAREA') ev.target.dataset.dirty = '1'; });
+
+  function setStatus(msg, warn) { var s = $('rv-status'); s.textContent = msg; s.className = 'rv-status' + (warn ? ' warn' : ''); }
+  function statusLine() { var n = counts(items); return 'Saved decisions load live. ' + (n.pending + n.stale) + ' items still to review.'; }
+
+  // ---------- boot ----------
+  renderControls(); renderSummary(); renderList();
+  var claude = window.claude;
+  if (!claude || !claude.use) { setStatus('Read-only copy: open this page on claude.ai to save decisions.', true); return; }
+  var timer = setTimeout(function () { setStatus('Saved decisions are taking a while to load. You can keep reading.', true); }, 10000);
+  Promise.all([claude.use('db'), claude.use('user')]).then(function (r) {
+    db = r[0]; user = r[1];
+    if (!db) { clearTimeout(timer); setStatus('Saving is unavailable here. Sign in to claude.ai to record decisions.', true); renderList(); return; }
+    return (user ? user.id() : Promise.resolve(null)).then(function (id) {
+      myId = id;
+      db.collection('reviews').onSnapshot(function (snap) {
+        clearTimeout(timer);
+        decisions = {}; snap.docs.forEach(function (d) { decisions[d.id] = d.data(); });
+        var ids = Object.keys(decisions).map(function (k) { return decisions[k].by; }).filter(function (x, i, a) { return x && x !== myId && a.indexOf(x) === i; });
+        var after = function () { renderSummary(); items.forEach(paintActions); setStatus(statusLine()); };
+        if (user && ids.length) user.profiles(ids).then(function (p) { names = p || {}; after(); }); else after();
+      }, function (e) {
+        clearTimeout(timer);
+        setStatus(e && e.code === 'revoked' ? 'Access to saved decisions ended.' : 'Could not load saved decisions. Reload the page to try again.', true);
+      });
+    });
+  });
+})();
+</script>
